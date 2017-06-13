@@ -10,6 +10,11 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -38,8 +43,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // LatLng sydney = new LatLng(-34, 151);
+
+        final LatLng egl = new LatLng(12.951292, 77.639570);
+        // final LatLng smondo = new LatLng(12.821949, 77.657729);
+        LatLng bangalore = egl;
+        LatLng delhi = new LatLng(28.645340, 77.213562);
+
+        mMap.addMarker(new MarkerOptions().position(egl).title("Marker in Bangalore"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(bangalore));
+
+
+        Observable.just("")
+                .delay(10000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
+                    mMap.addMarker(new MarkerOptions().position(delhi).title("Marker in Delhi"));
+                    // mMap.moveCamera(CameraUpdateFactory.newLatLng(delhi));
+                    // mMap.animateCamera(CameraUpdateFactory.newLatLng(delhi));
+
+                    // Zoom level ranges from 2.0 to 21.0 (But not all locations support max zoom)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(delhi, 12.0f));
+                });
+
     }
 }
