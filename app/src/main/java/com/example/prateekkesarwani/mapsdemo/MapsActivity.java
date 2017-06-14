@@ -51,6 +51,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void startLocationUpdates() {
         LocationUpdate locationUpdate = new LocationUpdate();
+        locationUpdate.getLocationObservable()
+                .filter(locationList -> {
+                    if (locationList != null) {
+                        return true;
+                    }
+                    return false;
+                })
+                .subscribe(location -> {
+                    mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                    // mCurrentMarker.
+                    Log.d("Prateek, ", "LocationChange:" + location.toString());
+                });
+
+    }
+
+    private void startLocationUpdatesSmooth() {
+        LocationUpdate locationUpdate = new LocationUpdate();
+
+        // TODO We can directly put observable(if not used elsewhere), here only.
+        // TODO So, we won't have to look else where, and would be a proper functional approach(Just relying on inputs)
+
         locationUpdate.getLocationObservableSmooth()
                 .filter(locationList -> {
                     if (locationList != null) {
@@ -59,18 +80,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return false;
                 })
                 .flatMap(locationList -> Observable.fromIterable(locationList))
-                .subscribe(location -> {
-                    mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
-                    // mCurrentMarker.
-                    Log.d("Prateek, ", "LocationChange:" + location.toString());
-                });
-    }
-
-    private void startLocationUpdatesSmooth() {
-        LocationUpdate locationUpdate = new LocationUpdate();
-        locationUpdate.getLocationObservable()
-                .filter(locationList -> {
-                    if (locationList != null) {
+                .filter(location -> {
+                    // TODO Here we can add accuracy stuff as well.
+                    if (location != null) {
                         return true;
                     }
                     return false;
