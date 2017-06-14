@@ -1,8 +1,7 @@
 package com.example.prateekkesarwani.mapsdemo;
 
-import android.content.pm.PackageManager;
+import android.annotation.SuppressLint;
 import android.location.Location;
-import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -117,6 +116,7 @@ public class LocationUpdate {
     public Observable<Location> getLocationObservable() {
         return Observable.create(new ObservableOnSubscribe<Location>() {
 
+            @SuppressLint("MissingPermission")
             @Override
             public void subscribe(final ObservableEmitter<Location> emitter) throws Exception {
 
