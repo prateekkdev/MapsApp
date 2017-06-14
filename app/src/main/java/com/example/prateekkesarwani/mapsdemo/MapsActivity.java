@@ -172,7 +172,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                         // Changing marker icon
                         mCurrentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
 
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
