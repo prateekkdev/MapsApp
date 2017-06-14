@@ -1,6 +1,7 @@
 package com.example.prateekkesarwani.mapsdemo;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -14,9 +15,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +32,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Marker mCurrentMarker;
     private FusedLocationProviderClient mFusedLocationClient;
+
+    final LatLng egl = new LatLng(12.951292, 77.639570);
+    final LatLng smondo = new LatLng(12.821949, 77.657729);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,14 +119,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        final LatLng egl = new LatLng(12.951292, 77.639570);
-        final LatLng smondo = new LatLng(12.821949, 77.657729);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        // mMap.getUiSettings().set
+
 
         mMap.addMarker(new MarkerOptions().position(egl).title("Marker in Current Pickup"));
         mMap.addMarker(new MarkerOptions().position(smondo).title("Marker in Current Drop"));
 
         // Initially, move to current location
         moveToCurrentLocation();
+
+        drawPolyline();
 
         /*
         final LatLng egl = new LatLng(12.951292, 77.639570);
@@ -148,6 +159,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 */
     }
 
+    private void drawPolyline() {
+
+        Polyline polyline;
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.add(egl);
+        polylineOptions.add(smondo);
+
+        /*
+        for (int z = 0; z < list.size() - 1; z++) {
+            LatLng src = list.get(z);
+            LatLng dest = list.get(z + 1);
+            polylineOptions.add(new LatLng(src.latitude,
+                    src.longitude), new LatLng(dest.latitude,
+                    dest.longitude));
+        }*/
+
+        polyline = mMap.addPolyline(polylineOptions.width(9)
+                .color(Color.parseColor("#aa006aff")).geodesic(true));
+    }
+
     private void moveToCurrentLocation() {
 
         if (ActivityCompat.checkSelfPermission(this,
@@ -172,7 +203,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                         // Changing marker icon
                         mCurrentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
+
+                        CameraPosition currentPlace = new CameraPosition.Builder()
+                                .target(new LatLng(location.getLatitude(),
+                                        location.getLongitude())).bearing(location.getBearing())
+                                .zoom(16.0f).build();
+                        mMap.animateCamera(
+                                CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
+                                null);
 
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
