@@ -13,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -88,6 +89,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return false;
                 })
                 .subscribe(location -> {
+
+                    // TODO
+                    // Can't we use some operator to evently distribute if multiple location objects come in.
+
                     mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
                     // mCurrentMarker.
                     Log.d("Prateek, ", "LocationChange:" + location.toString());
@@ -106,6 +111,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        final LatLng egl = new LatLng(12.951292, 77.639570);
+        final LatLng smondo = new LatLng(12.821949, 77.657729);
+
+        mMap.addMarker(new MarkerOptions().position(egl).title("Marker in Current Pickup"));
+        mMap.addMarker(new MarkerOptions().position(smondo).title("Marker in Current Drop"));
 
         // Initially, move to current location
         moveToCurrentLocation();
@@ -159,7 +170,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // TODO Ideally for no permission this statement shouldn't be executed, but we should get exception(?)
                     if (location != null) {
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        mCurrentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
+                        // Changing marker icon
+                        mCurrentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
 
                         Log.e("Prateek, ", "Altitude:" + location + "");
