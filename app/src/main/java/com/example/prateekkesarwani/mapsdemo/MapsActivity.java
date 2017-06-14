@@ -4,6 +4,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -13,6 +15,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -29,6 +36,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        Observable.just("")
+                .delay(10000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(location -> {
+                    Toast.makeText(this, "Startint location updates, ", Toast.LENGTH_SHORT).show();
+                    startLocationUpdates();
+                });
+
+    }
+
+    private void startLocationUpdates() {
+        LocationUpdate locationUpdate = new LocationUpdate();
+        locationUpdate.getLocationObservable().subscribe(location -> {
+            Log.d("Prateek, ", "LocationChange:" + location.toString());
+        });
     }
 
     /**
@@ -98,6 +121,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                         mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
+
+                        Log.e("Prateek, ", "Altitude:" + location + "");
                     }
                 });
     }
