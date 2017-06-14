@@ -1,14 +1,11 @@
 package com.example.prateekkesarwani.mapsdemo;
 
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,12 +13,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -53,9 +44,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        // LatLng sydney = new LatLng(-34, 151);
+        // Initially, move to current location
+        moveToCurrentLocation();
 
+        /*
         final LatLng egl = new LatLng(12.951292, 77.639570);
         final LatLng smondo = new LatLng(12.821949, 77.657729);
         LatLng bangalore = smondo;
@@ -79,6 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .delay(10000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s -> moveToCurrentLocation());
+                */
     }
 
     private void moveToCurrentLocation() {
@@ -97,15 +90,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(final Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
-                        }
+                .addOnSuccessListener(this, location -> {
+                    // Got last known location. In some rare situations this can be null.
+                    // Example location would be null when fine location permission is not there,
+                    // TODO Ideally for no permission this statement shouldn't be executed, but we should get exception(?)
+                    if (location != null) {
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
                     }
                 });
     }
