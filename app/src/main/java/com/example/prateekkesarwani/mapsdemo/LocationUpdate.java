@@ -9,6 +9,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -22,6 +24,10 @@ public class LocationUpdate {
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
+
+    public LocationUpdate() {
+        init();
+    }
 
     private void init() {
         mLocationRequest = new LocationRequest();
@@ -134,8 +140,6 @@ public class LocationUpdate {
                 }
                 */
 
-                init();
-
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                         new LocationCallback() {
 
@@ -143,6 +147,41 @@ public class LocationUpdate {
                             public void onLocationResult(LocationResult locationResult) {
                                 super.onLocationResult(locationResult);
                                 emitter.onNext(locationResult.getLastLocation());
+                            }
+                        },
+                        null);
+            }
+        });
+    }
+
+    public Observable<List<Location>> getLocationObservableSmooth() {
+        return Observable.create(new ObservableOnSubscribe<List<Location>>() {
+
+            @SuppressLint("MissingPermission")
+            @Override
+            public void subscribe(final ObservableEmitter<List<Location>> emitter) throws Exception {
+
+
+                /*
+                if (ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                */
+
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                        new LocationCallback() {
+
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                super.onLocationResult(locationResult);
+                                emitter.onNext(locationResult.getLocations());
                             }
                         },
                         null);

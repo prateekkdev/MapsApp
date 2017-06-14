@@ -14,6 +14,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private Marker mCurrentMarker;
     private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
@@ -42,16 +44,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(location -> {
                     Toast.makeText(this, "Startint location updates, ", Toast.LENGTH_SHORT).show();
-                    startLocationUpdates();
+                    startLocationUpdatesSmooth();
                 });
 
     }
 
     private void startLocationUpdates() {
         LocationUpdate locationUpdate = new LocationUpdate();
-        locationUpdate.getLocationObservable().subscribe(location -> {
-            Log.d("Prateek, ", "LocationChange:" + location.toString());
-        });
+        locationUpdate.getLocationObservableSmooth()
+                .filter(locationList -> {
+                    if (locationList != null) {
+                        return true;
+                    }
+                    return false;
+                })
+                .flatMap(locationList -> Observable.fromIterable(locationList))
+                .subscribe(location -> {
+                    mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                    // mCurrentMarker.
+                    Log.d("Prateek, ", "LocationChange:" + location.toString());
+                });
+    }
+
+    private void startLocationUpdatesSmooth() {
+        LocationUpdate locationUpdate = new LocationUpdate();
+        locationUpdate.getLocationObservable()
+                .filter(locationList -> {
+                    if (locationList != null) {
+                        return true;
+                    }
+                    return false;
+                })
+                .subscribe(location -> {
+                    mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                    // mCurrentMarker.
+                    Log.d("Prateek, ", "LocationChange:" + location.toString());
+                });
     }
 
     /**
@@ -119,7 +147,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // TODO Ideally for no permission this statement shouldn't be executed, but we should get exception(?)
                     if (location != null) {
                         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
+                        mCurrentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.0f));
 
                         Log.e("Prateek, ", "Altitude:" + location + "");
