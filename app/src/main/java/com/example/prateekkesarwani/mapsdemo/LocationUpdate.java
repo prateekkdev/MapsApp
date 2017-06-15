@@ -181,7 +181,9 @@ public class LocationUpdate {
                             @Override
                             public void onLocationResult(LocationResult locationResult) {
                                 super.onLocationResult(locationResult);
-                                emitter.onNext(locationResult.getLocations());
+                                if (locationResult != null && emitter != null) {
+                                    emitter.onNext(locationResult.getLocations());
+                                }
                             }
                         },
                         null);

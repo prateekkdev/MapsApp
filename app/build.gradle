@@ -45,4 +45,5 @@ dependencies {
     // Currently used only for location
     implementation 'com.google.android.gms:play-services:11.0.0'
 
+    implementation 'com.akexorcist:googledirectionlibrary:1.0.5'
 }

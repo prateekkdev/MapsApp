@@ -8,6 +8,10 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.constant.AvoidType;
+import com.akexorcist.googledirection.model.Direction;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -215,5 +219,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
                 });
+
+        GoogleDirection.withServerKey(getResources().getString(R.string.google_maps_key))
+                .from(new LatLng(37.7681994, -122.444538))
+                .to(new LatLng(37.7749003, -122.4034934))
+                .avoid(AvoidType.FERRIES)
+                .avoid(AvoidType.HIGHWAYS)
+                .execute(new DirectionCallback() {
+                    @Override
+                    public void onDirectionSuccess(Direction direction, String rawBody) {
+                        if (direction.isOK()) {
+                            Log.e("Prateek, direction", "OK" + rawBody);
+                        } else {
+                            Log.e("Prateek, direction", "NotOk:" + rawBody);
+                        }
+                    }
+
+                    @Override
+                    public void onDirectionFailure(Throwable t) {
+                        Log.e("Prateek, direction", "Failure: " + t.getMessage());
+                    }
+                });
+
     }
 }
