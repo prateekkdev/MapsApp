@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.akexorcist.googledirection.DirectionCallback;
@@ -41,10 +42,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     final LatLng egl = new LatLng(12.951292, 77.639570);
     final LatLng smondo = new LatLng(12.821949, 77.657729);
 
+    TextView txtNavigationNotification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -128,6 +134,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setCompassEnabled(true);
         // mMap.getUiSettings().set
 
+
+        mMap.setPadding(0, 0, (int) getResources().getDimension(R.dimen.map_padding_bottom), 0);
 
         mMap.addMarker(new MarkerOptions().position(egl).title("Marker in Current Pickup"));
         mMap.addMarker(new MarkerOptions().position(smondo).title("Marker in Current Drop"));
@@ -241,6 +249,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (direction.isOK()) {
 
                             List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
+
+                            txtNavigationNotification.setText(direction.getRouteList().get(0).getLegList().get(0).getStartAddress());
+
                             drawPolyline(list);
 
                             Log.e("Prateek, direction", "OK" + rawBody);
