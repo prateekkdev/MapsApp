@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -134,8 +135,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Initially, move to current location
         moveToCurrentLocation();
 
-        drawPolyline();
-
         /*
         final LatLng egl = new LatLng(12.951292, 77.639570);
         final LatLng smondo = new LatLng(12.821949, 77.657729);
@@ -163,12 +162,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 */
     }
 
-    private void drawPolyline() {
+    private void drawPolyline(List<LatLng> latLngList) {
 
         Polyline polyline;
         PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.add(egl);
-        polylineOptions.add(smondo);
+        polylineOptions.addAll(latLngList);
+
+        // polylineOptions.add(egl);
+        // polylineOptions.add(smondo);
 
         /*
         for (int z = 0; z < list.size() - 1; z++) {
@@ -181,6 +182,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         polyline = mMap.addPolyline(polylineOptions.width(9)
                 .color(Color.parseColor("#aa006aff")).geodesic(true));
+        // polyline.setPoints(latLngList);
+
+
     }
 
     private void moveToCurrentLocation() {
@@ -204,9 +208,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Example location would be null when fine location permission is not there,
                     // TODO Ideally for no permission this statement shouldn't be executed, but we should get exception(?)
                     if (location != null) {
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                         // Changing marker icon
-                        mCurrentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
+                        mCurrentMarker = mMap.addMarker(new MarkerOptions().position(currentLocation).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
 
                         CameraPosition currentPlace = new CameraPosition.Builder()
                                 .target(new LatLng(location.getLatitude(),
@@ -216,19 +220,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                                 null);
 
+                        updatePolyline();
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
                 });
+    }
 
+    LatLng currentLocation;
+    LatLng dropLocation;
+
+    public void updatePolyline() {
         GoogleDirection.withServerKey(getResources().getString(R.string.google_maps_key))
-                .from(new LatLng(37.7681994, -122.444538))
-                .to(new LatLng(37.7749003, -122.4034934))
+                .from(new LatLng(smondo.latitude, smondo.longitude))
+                .to(new LatLng(egl.latitude, egl.longitude))
                 .avoid(AvoidType.FERRIES)
-                .avoid(AvoidType.HIGHWAYS)
                 .execute(new DirectionCallback() {
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
+
                         if (direction.isOK()) {
+
+                            List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
+                            drawPolyline(list);
+
                             Log.e("Prateek, direction", "OK" + rawBody);
                         } else {
                             Log.e("Prateek, direction", "NotOk:" + rawBody);
@@ -240,6 +254,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Log.e("Prateek, direction", "Failure: " + t.getMessage());
                     }
                 });
-
     }
 }
