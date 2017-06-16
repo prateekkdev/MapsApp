@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -131,7 +132,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LatLng currentLatLong = new LatLng(location.getLatitude(), location.getLongitude());
                     mCurrentMarker.setPosition(currentLatLong);
 
-                    updatePolyline(currentLatLong, egl);
+                    // updatePolyline(currentLatLong, egl);
                     // mCurrentMarker.
                     Log.d("Prateek, ", "LocationChange:" + location.toString());
                 });
@@ -161,7 +162,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(smondo).title("Marker in Current Drop"));
 
         // Initially, move to current location
-        moveToCurrentLocation();
+
+        Observable.just("")
+                .delay(5000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> moveToCurrentLocation());
     }
 
     private void drawPolyline(List<LatLng> latLngList) {
@@ -211,6 +216,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         ttsEngine.speak("Hello There", TextToSpeech.QUEUE_FLUSH, null);
 
+
+                        List<LatLng> latLngs = new ArrayList<>();
+                        latLngs.add(new LatLng(12.92452, 77.67371));
+                        latLngs.add(new LatLng(12.95820, 77.66860));
+                        updatePolyline(smondo, egl, latLngs);
+
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
                 });
@@ -219,11 +230,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng currentLocation;
     LatLng dropLocation;
 
-    public void updatePolyline(LatLng start, LatLng end) {
+    public void updatePolyline(LatLng start, LatLng end, List<LatLng> waypointList) {
+
         GoogleDirection.withServerKey(getResources().getString(R.string.google_maps_key))
                 .from(new LatLng(start.latitude, start.longitude))
                 .to(new LatLng(end.latitude, end.longitude))
                 .avoid(AvoidType.FERRIES)
+                .waypoints(waypointList)
                 .execute(new DirectionCallback() {
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
