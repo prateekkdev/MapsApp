@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -111,7 +112,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // TODO
                     // Can't we use some operator to evently distribute if multiple location objects come in.
 
-                    mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                    LatLng currentLatLong = new LatLng(location.getLatitude(), location.getLongitude());
+                    mCurrentMarker.setPosition(currentLatLong);
+
+                    updatePolyline(currentLatLong, egl);
                     // mCurrentMarker.
                     Log.d("Prateek, ", "LocationChange:" + location.toString());
                 });
@@ -142,32 +146,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Initially, move to current location
         moveToCurrentLocation();
-
-        /*
-        final LatLng egl = new LatLng(12.951292, 77.639570);
-        final LatLng smondo = new LatLng(12.821949, 77.657729);
-        LatLng bangalore = smondo;
-        LatLng delhi = new LatLng(28.645340, 77.213562);
-
-        mMap.addMarker(new MarkerOptions().position(delhi).title("Marker in Delhi"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(delhi));
-
-
-        Observable.just("")
-                .delay(5000, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(s -> {
-                    mMap.addMarker(new MarkerOptions().position(bangalore).title("Marker in Bangalore"));
-                    // mMap.moveCamera(CameraUpdateFactory.newLatLng(delhi));
-                    // mMap.animateCamera(CameraUpdateFactory.newLatLng(delhi));
-
-                    // Zoom level ranges from 2.0 to 21.0 (But not all locations support max zoom)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bangalore, 12.0f));
-                })
-                .delay(10000, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> moveToCurrentLocation());
-                */
     }
 
     private void drawPolyline(List<LatLng> latLngList) {
@@ -176,23 +154,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         PolylineOptions polylineOptions = new PolylineOptions();
         polylineOptions.addAll(latLngList);
 
-        // polylineOptions.add(egl);
-        // polylineOptions.add(smondo);
-
-        /*
-        for (int z = 0; z < list.size() - 1; z++) {
-            LatLng src = list.get(z);
-            LatLng dest = list.get(z + 1);
-            polylineOptions.add(new LatLng(src.latitude,
-                    src.longitude), new LatLng(dest.latitude,
-                    dest.longitude));
-        }*/
-
         polyline = mMap.addPolyline(polylineOptions.width(9)
                 .color(Color.parseColor("#aa006aff")).geodesic(true));
-        // polyline.setPoints(latLngList);
-
-
     }
 
     private void moveToCurrentLocation() {
@@ -228,7 +191,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                                 null);
 
-                        updatePolyline();
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
                 });
@@ -237,10 +199,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng currentLocation;
     LatLng dropLocation;
 
-    public void updatePolyline() {
+    public void updatePolyline(LatLng start, LatLng end) {
         GoogleDirection.withServerKey(getResources().getString(R.string.google_maps_key))
-                .from(new LatLng(smondo.latitude, smondo.longitude))
-                .to(new LatLng(egl.latitude, egl.longitude))
+                .from(new LatLng(start.latitude, start.longitude))
+                .to(new LatLng(end.latitude, end.longitude))
                 .avoid(AvoidType.FERRIES)
                 .execute(new DirectionCallback() {
                     @Override
@@ -250,7 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
 
-                            txtNavigationNotification.setText(direction.getRouteList().get(0).getLegList().get(0).getStartAddress());
+                            txtNavigationNotification.setText(Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction()));
 
                             drawPolyline(list);
 

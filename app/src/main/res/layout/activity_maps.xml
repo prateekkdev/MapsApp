@@ -12,7 +12,7 @@
     <TextView
         android:id="@+id/txt_navigation_notification"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@android:color/white"
         android:padding="8dp"
