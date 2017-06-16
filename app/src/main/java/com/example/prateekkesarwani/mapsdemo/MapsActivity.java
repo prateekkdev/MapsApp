@@ -3,6 +3,7 @@ package com.example.prateekkesarwani.mapsdemo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -50,6 +52,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        initTTS();
+
         txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -66,7 +70,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(this, "Startint location updates, ", Toast.LENGTH_SHORT).show();
                     startLocationUpdatesSmooth();
                 });
+    }
 
+    TextToSpeech ttsEngine;
+
+    void initTTS() {
+        ttsEngine = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    ttsEngine.setLanguage(Locale.US);
+                }
+            }
+        });
     }
 
     private void startLocationUpdates() {
@@ -190,6 +206,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.animateCamera(
                                 CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                                 null);
+
+                        // t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+
+                        ttsEngine.speak("Hello There", TextToSpeech.QUEUE_FLUSH, null);
 
                         Log.e("Prateek, ", "Altitude:" + location + "");
                     }
