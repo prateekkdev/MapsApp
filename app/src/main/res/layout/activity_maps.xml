@@ -18,4 +18,22 @@
         android:padding="8dp"
         android:textSize="16sp" />
 
+    <ImageView
+        android:id="@+id/img_current"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/ic_my_location" />
+
+    <ImageView
+        android:id="@+id/img_route"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/img_current"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/ic_snap_route" />
+
 </RelativeLayout>

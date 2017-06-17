@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import com.akexorcist.googledirection.constant.AvoidType;
 import com.akexorcist.googledirection.model.Direction;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -46,7 +49,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     final LatLng egl = new LatLng(12.951292, 77.639570);
     final LatLng smondo = new LatLng(12.821949, 77.657729);
 
-    TextView txtNavigationNotification;
+    private TextView txtNavigationNotification;
+
+    private ImageView imgCurrent;
+    private ImageView imgRoute;
+
+    LatLng currentLocation;
+    LatLng dropLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         initTTS();
 
         txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
+
+        imgCurrent = (ImageView) findViewById(R.id.img_current);
+        imgCurrent.setOnClickListener( view -> showPosition(currentLocation, 0));
+
+        imgRoute = (ImageView) findViewById(R.id.img_route);
+        // imgRoute.setOnClickListener(view -> showRoute());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -204,13 +219,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         // Changing marker icon
                         mCurrentMarker = mMap.addMarker(new MarkerOptions().position(currentLocation).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
 
-                        CameraPosition currentPlace = new CameraPosition.Builder()
-                                .target(new LatLng(location.getLatitude(),
-                                        location.getLongitude())).bearing(location.getBearing())
-                                .zoom(16.0f).build();
-                        mMap.animateCamera(
-                                CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
-                                null);
+                        showPosition(currentLocation, location.getBearing());
 
                         // t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
 
@@ -226,9 +235,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
     }
-
-    LatLng currentLocation;
-    LatLng dropLocation;
 
     public void updatePolyline(LatLng start, LatLng end, List<LatLng> waypointList) {
 
@@ -260,5 +266,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Log.e("Prateek, direction", "Failure: " + t.getMessage());
                     }
                 });
+    }
+
+    public void showPosition(LatLng location, float bearing) {
+
+        // Need to set bearing as well, in here
+        CameraPosition currentPlace = new CameraPosition.Builder()
+                .target(location)
+                .bearing(bearing)
+                .zoom(16.0f).build();
+        mMap.animateCamera(
+                CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
+                null);
+    }
+
+    public void showRoute(LatLng start, LatLng end) {
+        LatLngBounds.Builder b = new LatLngBounds.Builder();
+        b.include(start);
+        b.include(end);
+
+        LatLngBounds bounds = b.build();
+        // Change the padding as per needed
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 60);
+        mMap.animateCamera(cu);
     }
 }

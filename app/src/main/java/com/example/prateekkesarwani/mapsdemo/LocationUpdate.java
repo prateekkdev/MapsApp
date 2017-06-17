@@ -126,7 +126,6 @@ public class LocationUpdate {
             @Override
             public void subscribe(final ObservableEmitter<Location> emitter) throws Exception {
 
-
                 /*
                 if (ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
