@@ -153,13 +153,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mCurrLocationMarker.remove();
                     }
 
+                    mMap.setMyLocationEnabled();
+
                     //Place current location marker
-                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    markerOptions.position(latLng);
-                    markerOptions.title("Current Position");
-                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+//                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//                    MarkerOptions markerOptions = new MarkerOptions();
+//                    markerOptions.position(latLng);
+//                    markerOptions.title("Current Position");
+//                    // markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+//                    mCurrLocationMarker = mMap.addMarker(markerOptions);
 
                     //move map camera
                     // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
