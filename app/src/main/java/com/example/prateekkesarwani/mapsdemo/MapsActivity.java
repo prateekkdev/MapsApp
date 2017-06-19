@@ -43,7 +43,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private Marker mCurrentMarker;
+    private Marker mCurrLocationMarker;
     private FusedLocationProviderClient mFusedLocationClient;
 
     final LatLng egl = new LatLng(12.951292, 77.639570);
@@ -111,8 +111,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return false;
                 })
                 .subscribe(location -> {
-                    mCurrentMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
-                    // mCurrentMarker.
+                    mCurrLocationMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                    // mCurrLocationMarker.
                     Log.d("Prateek, ", "LocationChange:" + location.toString());
                 });
 
@@ -144,11 +144,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // TODO
                     // Can't we use some operator to evently distribute if multiple location objects come in.
 
-                    LatLng currentLatLong = new LatLng(location.getLatitude(), location.getLongitude());
-                    mCurrentMarker.setPosition(currentLatLong);
+                    // LatLng currentLatLong = new LatLng(location.getLatitude(), location.getLongitude());
+
+                    //------
+
+                    // mLastLocation = location;
+                    if (mCurrLocationMarker != null) {
+                        mCurrLocationMarker.remove();
+                    }
+
+                    //Place current location marker
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title("Current Position");
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+                    //move map camera
+                    // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+
+                    //------
+
+                    // mCurrLocationMarker.setPosition(currentLatLong);
 
                     // updatePolyline(currentLatLong, egl);
-                    // mCurrentMarker.
+                    // mCurrLocationMarker.
                     Log.d("Prateek, ", "LocationChange:" + location.toString());
                 });
     }
@@ -166,7 +187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         // mMap.getUiSettings().set
 
@@ -178,10 +199,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Initially, move to current location
 
+        /*
         Observable.just("")
                 .delay(5000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s -> moveToLastKnownLocation());
+                */
     }
 
     private void drawPolyline(List<LatLng> latLngList) {
@@ -220,7 +243,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (location != null) {
                         currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                         // Changing marker icon
-                        mCurrentMarker = mMap.addMarker(new MarkerOptions().position(currentLocation).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
+                        mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(currentLocation).title("Marker in Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
 
                         showPosition(currentLocation, location.getBearing());
 
