@@ -67,7 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
 
         imgCurrent = (ImageView) findViewById(R.id.img_current);
-        imgCurrent.setOnClickListener( view -> showPosition(currentLocation, 0));
+        imgCurrent.setOnClickListener(view -> showPosition(currentLocation, 0));
 
         imgRoute = (ImageView) findViewById(R.id.img_route);
         // imgRoute.setOnClickListener(view -> showRoute());
@@ -181,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Observable.just("")
                 .delay(5000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> moveToCurrentLocation());
+                .subscribe(s -> moveToLastKnownLocation());
     }
 
     private void drawPolyline(List<LatLng> latLngList) {
@@ -194,7 +194,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .color(Color.parseColor("#aa006aff")).geodesic(true));
     }
 
-    private void moveToCurrentLocation() {
+    /**
+     * Doesn't affect the battery as such, only last known location is fetched here.
+     */
+    private void moveToLastKnownLocation() {
 
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
