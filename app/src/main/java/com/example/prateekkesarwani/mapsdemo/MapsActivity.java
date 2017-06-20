@@ -1,5 +1,6 @@
 package com.example.prateekkesarwani.mapsdemo;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -17,6 +18,10 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -41,6 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location savedLocation;
     Location currentLocation;
     float currentBearing;
+    private Polyline polyline;
 
     TextToSpeech ttsEngine;
 
@@ -92,7 +98,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateCurrentLocationData();
     }
 
+    private void drawPolyline(List<LatLng> latLngList) {
+        if (polyline == null) {
+
+            PolylineOptions polylineOptions = new PolylineOptions();
+            polylineOptions.addAll(latLngList);
+
+            polyline = mMap.addPolyline(polylineOptions.width(9)
+                    .color(Color.parseColor("#aa006aff")).geodesic(true));
+        } else {
+            polyline.setPoints(latLngList);
+        }
+    }
+
+
     private void initWithLastKnownLocation() {
+
+        mLocationUpdate
+                .getPolylineObservable(smondo, egl, null)
+                .subscribe(list -> drawPolyline(list));
 
         mLocationUpdate.getLastKnownLocationObservable()
                 .subscribeOn(Schedulers.io())

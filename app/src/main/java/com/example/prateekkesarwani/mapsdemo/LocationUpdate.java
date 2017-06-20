@@ -2,12 +2,18 @@ package com.example.prateekkesarwani.mapsdemo;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+import android.util.Log;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.constant.AvoidType;
+import com.akexorcist.googledirection.model.Direction;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -78,5 +84,38 @@ public class LocationUpdate {
                     });
 
         });
+    }
+
+    public Observable<List<LatLng>> getPolylineObservable(LatLng start, LatLng end, List<LatLng> waypointList) {
+
+        return Observable.create(e ->
+                GoogleDirection.withServerKey(MapsDemoApplication.getAppContext().getResources().getString(R.string.google_maps_key))
+                        .from(start)
+                        .to(end)
+                        .avoid(AvoidType.FERRIES)
+                        .execute(new DirectionCallback() {
+                            @Override
+                            public void onDirectionSuccess(Direction direction, String rawBody) {
+
+                                if (direction.isOK()) {
+
+                                    List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
+
+                                    // txtNavigationNotification.setText(Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction()));
+
+                                    e.onNext(list);
+
+                                    Log.e("Prateek, direction", "OK" + rawBody);
+                                } else {
+                                    Log.e("Prateek, direction", "NotOk:" + rawBody);
+                                }
+                            }
+
+                            @Override
+                            public void onDirectionFailure(Throwable t) {
+                                e.onError(new Throwable("Direction not ok"));
+                                Log.e("Prateek, direction", "Failure: " + t.getMessage());
+                            }
+                        }));
     }
 }
