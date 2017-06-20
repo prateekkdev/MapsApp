@@ -93,6 +93,7 @@ public class LocationUpdate {
                         .from(start)
                         .to(end)
                         .avoid(AvoidType.FERRIES)
+                        .waypoints(waypointList)
                         .execute(new DirectionCallback() {
                             @Override
                             public void onDirectionSuccess(Direction direction, String rawBody) {
