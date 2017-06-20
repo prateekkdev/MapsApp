@@ -1,5 +1,6 @@
 package com.example.prateekkesarwani.mapsdemo;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
@@ -7,12 +8,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -28,7 +36,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView imgCurrent;
     private ImageView imgRoute;
 
-    LatLng currentLocation;
+    // Location currentLocation;
     LatLng dropLocation;
 
     TextToSpeech ttsEngine;
@@ -64,11 +72,163 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMyLocationEnabled(true);
 
+        // mMap.getMyLocation();
+
         mMap.getUiSettings().setCompassEnabled(true);
 
         // mMap.setPadding(0, 0, (int) getResources().getDimension(R.dimen.map_padding_bottom), 0);
 
         mMap.addMarker(new MarkerOptions().position(egl).title("Marker in Current Pickup"));
         mMap.addMarker(new MarkerOptions().position(smondo).title("Marker in Current Drop"));
+
+
+        updateCurrentLocationData();
     }
+
+    private void updateCurrentLocationData() {
+
+        LocationUpdate locationUpdate = new LocationUpdate();
+
+        locationUpdate.getLocationObservableSmooth().subscribe(new Consumer<List<Location>>() {
+            @Override
+            public void accept(List<Location> locations) throws Exception {
+
+                locationUpdate.getLocationObservableSmooth()
+                        .filter(locationList -> {
+                            if (locationList != null) {
+                                return true;
+                            }
+                            return false;
+                        })
+                        // Basically multiple locations might come even in single callback during the interval.
+                        .flatMap(locationList -> Observable.fromIterable(locationList))
+                        .filter(location -> {
+                            // TODO Here we can add accuracy stuff as well.
+                            if (location != null) {
+                                return true;
+                            }
+                            return false;
+                        })
+                        .doOnNext(location -> {
+
+                                    currentLocation = location;
+                                    savedLocation = getPLocation();
+
+                                    updateCamera(savedLocation.location, savedLocation.bearing);
+
+                            /*
+                                    if (mCurrLocationMarker != null) {
+                                        mCurrLocationMarker.remove();
+                                    }
+
+
+                                    //Place current location marker
+                                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(latLng);
+                                    markerOptions.title("Current Position");
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+                                    //move map camera
+                                    // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+
+                                    //------
+
+                                    // mCurrLocationMarker.setPosition(currentLatLong);
+
+                                    // updatePolyline(currentLatLong, egl);
+                                    // mCurrLocationMarker.
+                                    Log.d("Prateek, ", "LocationChange:" + location.toString());
+                                    */
+                                }
+                        )
+                        .subscribe();
+
+            }
+        });
+
+    }
+
+    PLocation savedLocation;
+    Location currentLocation;
+
+    class PLocation {
+        float bearing;
+        Location location;
+    }
+
+    private PLocation getPLocation() {
+
+        if (savedLocation == null) {
+            savedLocation = new PLocation();
+            savedLocation.location = currentLocation;
+            savedLocation.bearing = currentLocation.getBearing();
+        }
+
+        if (currentLocation != null) {
+
+            if (savedLocation.location == null || savedLocation.location.getAccuracy() > 20) {
+                savedLocation.location = currentLocation;
+            }
+
+            final float bearing = (float) BearingCalculation.finalBearing(
+                    savedLocation.location.getLatitude(),
+                    savedLocation.location.getLongitude(),
+                    currentLocation.getLatitude(), currentLocation.getLongitude());
+
+            double bearing_change_distance = savedLocation.location
+                    .distanceTo(currentLocation);
+
+            savedLocation.location = currentLocation;
+            if (bearing_change_distance >= 20
+                    && savedLocation.location.getAccuracy() < 20
+                    && currentLocation.getAccuracy() < 20) {
+                savedLocation.bearing = bearing;
+            }
+        }
+        return savedLocation;
+    }
+
+    /**
+     * Updates the map orientation and center of focus based on the current
+     * location and calculated bearing(Cab orientation).
+     *
+     * @param bearing
+     */
+    public void updateCamera(Location location, float bearing) {
+        if (location != null) {
+            CameraPosition currentPlace = new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(),
+                            location.getLongitude())).bearing(bearing)
+                    .zoom(15).build();
+            mMap.animateCamera(
+                    CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
+                    null);
+        }
+    }
+
+
+    public static class BearingCalculation {
+        static public double initial(double lat1, double long1, double lat2, double long2) {
+            return (_bearing(lat1, long1, lat2, long2) + 360.0) % 360;
+        }
+
+        static public double finalBearing(double lat1, double long1, double lat2, double long2) {
+            return (_bearing(lat2, long2, lat1, long1) + 180.0) % 360;
+        }
+
+        static private double _bearing(double lat1, double long1, double lat2, double long2) {
+            double degToRad = Math.PI / 180.0;
+            double phi1 = lat1 * degToRad;
+            double phi2 = lat2 * degToRad;
+            double lam1 = long1 * degToRad;
+            double lam2 = long2 * degToRad;
+
+            return Math.atan2(Math.sin(lam2 - lam1) * Math.cos(phi2),
+                    Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(lam2 - lam1)
+            ) * 180 / Math.PI;
+        }
+    }
+
 }
