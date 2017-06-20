@@ -12,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -41,6 +42,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     TextToSpeech ttsEngine;
 
+    LocationUpdate mLocationUpdate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         imgCurrent = (ImageView) findViewById(R.id.img_current);
 
         imgRoute = (ImageView) findViewById(R.id.img_route);
+
+        mLocationUpdate = new LocationUpdate();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -70,9 +75,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setMyLocationEnabled(true);
-
-        // mMap.getMyLocation();
+        // Default mylocation along with direction is given by this.
+        // mMap.setMyLocationEnabled(true);
 
         mMap.getUiSettings().setCompassEnabled(true);
 
@@ -81,15 +85,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(egl).title("Marker in Current Pickup"));
         mMap.addMarker(new MarkerOptions().position(smondo).title("Marker in Current Drop"));
 
+        initWithLastKnownLocation();
 
         updateCurrentLocationData();
+    }
+
+    private void initWithLastKnownLocation() {
+
+        mLocationUpdate.getLastKnownLocationObservable()
+                .subscribeOn(Schedulers.io())
+                .doOnNext(location -> currentLocation = location)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(location -> {
+                    mCurrLocationMarker = mMap
+                            .addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                    .title("Marker in Current Location")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
+                    updateCamera(location, location.getBearing());
+                });
     }
 
     private void updateCurrentLocationData() {
 
         LocationUpdate locationUpdate = new LocationUpdate();
 
-        locationUpdate.getLocationObservableSmooth()
+        locationUpdate.getLocationChangeObservable()
                 .observeOn(Schedulers.io())
                 .filter(locationList -> {
                     if (locationList != null) {
@@ -109,6 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(location -> {
                             currentLocation = location;
+                            mCurrLocationMarker.setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             updateBearing();
                             updateCamera(currentLocation, currentBearing);
                         }
@@ -154,13 +175,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             CameraPosition currentPlace = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(),
                             location.getLongitude())).bearing(bearing)
-                    .zoom(15).build();
+                    .zoom(17).build();
             mMap.animateCamera(
                     CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                     null);
         }
     }
-
 
     public static class BearingCalculation {
         static public double initial(double lat1, double long1, double lat2, double long2) {

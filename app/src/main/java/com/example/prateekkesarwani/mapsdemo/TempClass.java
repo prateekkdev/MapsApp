@@ -17,6 +17,8 @@ import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.constant.AvoidType;
 import com.akexorcist.googledirection.model.Direction;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -101,30 +103,13 @@ public class TempClass extends FragmentActivity implements OnMapReadyCallback {
         });
     }
 
-    private void startLocationUpdates() {
-        LocationUpdate locationUpdate = new LocationUpdate();
-        locationUpdate.getLocationObservable()
-                .filter(locationList -> {
-                    if (locationList != null) {
-                        return true;
-                    }
-                    return false;
-                })
-                .subscribe(location -> {
-                    mCurrLocationMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
-                    // mCurrLocationMarker.
-                    Log.d("Prateek, ", "LocationChange:" + location.toString());
-                });
-
-    }
-
     private void startLocationUpdatesSmooth() {
         LocationUpdate locationUpdate = new LocationUpdate();
 
         // TODO We can directly put observable(if not used elsewhere), here only.
         // TODO So, we won't have to look else where, and would be a proper functional approach(Just relying on inputs)
 
-        locationUpdate.getLocationObservableSmooth()
+        locationUpdate.getLocationChangeObservable()
                 .filter(locationList -> {
                     if (locationList != null) {
                         return true;
@@ -317,5 +302,90 @@ public class TempClass extends FragmentActivity implements OnMapReadyCallback {
         // Change the padding as per needed
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 60);
         mMap.animateCamera(cu);
+    }
+
+
+        /*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        boolean mRequestingLocationUpdates = true;
+        // Notice that the above code snippet refers to a boolean flag, mRequestingLocationUpdates, used to track whether the user has turned location updates on or off
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+    */
+
+    LocationRequest mLocationRequest;
+    LocationCallback mLocationCallback;
+
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+
+        /*
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                // All location settings are satisfied. The client can initialize
+                // location requests here.
+                // ...
+            }
+        });
+
+        task.addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode) {
+                    case CommonStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            ResolvableApiException resolvable = (ResolvableApiException) e;
+                            resolvable.startResolutionForResult(MapsActivity.this,
+                                    REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException sendEx) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way
+                        // to fix the settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
+        */
+
+
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
+
+    private void startLocationUpdates() {
+
     }
 }

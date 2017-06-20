@@ -38,109 +38,7 @@ public class LocationUpdate {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(MapsDemoApplication.getAppContext());
     }
 
-        /*
-    @Override
-    protected void onResume() {
-        super.onResume();
-        boolean mRequestingLocationUpdates = true;
-        // Notice that the above code snippet refers to a boolean flag, mRequestingLocationUpdates, used to track whether the user has turned location updates on or off
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopLocationUpdates();
-    }
-    */
-
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-
-        /*
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-
-        SettingsClient client = LocationServices.getSettingsClient(this);
-        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
-
-        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-            @Override
-            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                // All location settings are satisfied. The client can initialize
-                // location requests here.
-                // ...
-            }
-        });
-
-        task.addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                int statusCode = ((ApiException) e).getStatusCode();
-                switch (statusCode) {
-                    case CommonStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            ResolvableApiException resolvable = (ResolvableApiException) e;
-                            resolvable.startResolutionForResult(MapsActivity.this,
-                                    REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException sendEx) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way
-                        // to fix the settings so we won't show the dialog.
-                        break;
-                }
-            }
-        });
-        */
-
-
-    }
-
-    private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-    }
-
-    private void startLocationUpdates() {
-
-    }
-
-    public Observable<Location> getLocationObservable() {
-        return Observable.create(new ObservableOnSubscribe<Location>() {
-
-            @SuppressLint("MissingPermission")
-            @Override
-            public void subscribe(final ObservableEmitter<Location> emitter) throws Exception {
-
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                        new LocationCallback() {
-
-                            @Override
-                            public void onLocationResult(LocationResult locationResult) {
-                                super.onLocationResult(locationResult);
-                                emitter.onNext(locationResult.getLastLocation());
-                            }
-                        },
-                        null);
-            }
-        });
-    }
-
-    public Observable<List<Location>> getLocationObservableSmooth() {
+    public Observable<List<Location>> getLocationChangeObservable() {
         return Observable.create(new ObservableOnSubscribe<List<Location>>() {
 
             @SuppressLint("MissingPermission")
@@ -160,6 +58,25 @@ public class LocationUpdate {
                         },
                         null);
             }
+        });
+    }
+
+    public Observable<Location> getLastKnownLocationObservable() {
+
+        return Observable.create(e -> {
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        // Got last known location. In some rare situations this can be null.
+                        // Example location would be null when fine location permission is not there,
+                        // TODO Ideally for no permission this statement shouldn't be executed, but we should get exception(?)
+                        if (location != null) {
+                            e.onNext(location);
+
+                            // If this is called immediately, we don't need to dispose(?)
+                            e.onComplete();
+                        }
+                    });
+
         });
     }
 }
