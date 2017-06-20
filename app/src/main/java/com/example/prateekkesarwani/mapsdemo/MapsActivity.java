@@ -24,6 +24,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private static final int ZOOM_LEVEL = 17;
+
     private GoogleMap mMap;
     private Marker mCurrLocationMarker;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -175,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             CameraPosition currentPlace = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(),
                             location.getLongitude())).bearing(bearing)
-                    .zoom(17).build();
+                    .zoom(ZOOM_LEVEL).build();
             mMap.animateCamera(
                     CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                     null);
