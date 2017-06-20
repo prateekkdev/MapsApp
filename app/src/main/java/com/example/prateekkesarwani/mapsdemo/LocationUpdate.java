@@ -126,19 +126,6 @@ public class LocationUpdate {
             @Override
             public void subscribe(final ObservableEmitter<Location> emitter) throws Exception {
 
-                /*
-                if (ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                */
-
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                         new LocationCallback() {
 
@@ -159,20 +146,6 @@ public class LocationUpdate {
             @SuppressLint("MissingPermission")
             @Override
             public void subscribe(final ObservableEmitter<List<Location>> emitter) throws Exception {
-
-
-                /*
-                if (ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsDemoApplication.getAppContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                */
 
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                         new LocationCallback() {

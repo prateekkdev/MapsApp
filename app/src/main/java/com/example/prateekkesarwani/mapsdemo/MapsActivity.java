@@ -17,10 +17,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
-
 import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -90,64 +89,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LocationUpdate locationUpdate = new LocationUpdate();
 
-        locationUpdate.getLocationObservableSmooth().subscribe(new Consumer<List<Location>>() {
-            @Override
-            public void accept(List<Location> locations) throws Exception {
-
-                locationUpdate.getLocationObservableSmooth()
-                        .filter(locationList -> {
-                            if (locationList != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        // Basically multiple locations might come even in single callback during the interval.
-                        .flatMap(locationList -> Observable.fromIterable(locationList))
-                        .filter(location -> {
-                            // TODO Here we can add accuracy stuff as well.
-                            if (location != null) {
-                                return true;
-                            }
-                            return false;
-                        })
-                        .doOnNext(location -> {
-
-                                    currentLocation = location;
-                                    updateBearing();
-                                    updateCamera(currentLocation, currentBearing);
-
-                            /*
-                                    if (mCurrLocationMarker != null) {
-                                        mCurrLocationMarker.remove();
-                                    }
-
-
-                                    //Place current location marker
-                                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                                    MarkerOptions markerOptions = new MarkerOptions();
-                                    markerOptions.position(latLng);
-                                    markerOptions.title("Current Position");
-                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                                    mCurrLocationMarker = mMap.addMarker(markerOptions);
-
-                                    //move map camera
-                                    // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
-
-                                    //------
-
-                                    // mCurrLocationMarker.setPosition(currentLatLong);
-
-                                    // updatePolyline(currentLatLong, egl);
-                                    // mCurrLocationMarker.
-                                    Log.d("Prateek, ", "LocationChange:" + location.toString());
-                                    */
-                                }
-                        )
-                        .subscribe();
-
-            }
-        });
-
+        locationUpdate.getLocationObservableSmooth()
+                .observeOn(Schedulers.io())
+                .filter(locationList -> {
+                    if (locationList != null) {
+                        return true;
+                    }
+                    return false;
+                })
+                // Basically multiple locations might come even in single callback during the interval.
+                .flatMap(locationList -> Observable.fromIterable(locationList))
+                .filter(location -> {
+                    // TODO Here we can add accuracy stuff as well.
+                    if (location != null) {
+                        return true;
+                    }
+                    return false;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(location -> {
+                            currentLocation = location;
+                            updateBearing();
+                            updateCamera(currentLocation, currentBearing);
+                        }
+                )
+                .subscribe();
     }
 
     private void updateBearing() {
