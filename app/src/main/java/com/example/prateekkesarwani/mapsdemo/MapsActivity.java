@@ -109,9 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateCurrentLocationData() {
 
-        LocationUpdate locationUpdate = new LocationUpdate();
-
-        locationUpdate.getLocationChangeObservable()
+        mLocationUpdate.getLocationChangeObservable()
                 .observeOn(Schedulers.io())
                 .filter(locationList -> {
                     if (locationList != null) {
@@ -205,5 +203,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ) * 180 / Math.PI;
         }
     }
-
 }
