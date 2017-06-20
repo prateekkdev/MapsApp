@@ -163,6 +163,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             mCurrLocationMarker.setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             updateBearing();
                             updateCamera(currentLocation, currentBearing);
+
+                            updatePolyline();
                         }
                 )
                 .subscribe();
