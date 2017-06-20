@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -68,7 +70,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        initTTS();
     }
+
+    void initTTS() {
+        ttsEngine = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    ttsEngine.setLanguage(Locale.US);
+                }
+            }
+        });
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -122,6 +138,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .subscribe(polylineData -> {
                     txtNavigationNotification.setText(polylineData.getInstruction());
                     drawPolyline(polylineData.getPolyline());
+
+                    /**
+                     * TODO This value should be non-null for indexes other than 0.
+                     */
+                    if (!TextUtils.isEmpty(polylineData.getManeuver())) {
+                        ttsEngine.speak(polylineData.getManeuver(), TextToSpeech.QUEUE_FLUSH, null);
+                    }
                 });
     }
 

@@ -104,7 +104,9 @@ public class LocationUpdate {
 
                                     List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
 
-                                    e.onNext(new PolylineData(list, Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction())));
+                                    e.onNext(new PolylineData(list,
+                                            Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction()),
+                                            direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getManeuver()));
 
                                     Log.e("Prateek, direction", "OK" + rawBody);
                                 } else {
@@ -123,10 +125,12 @@ public class LocationUpdate {
     class PolylineData {
         private List<LatLng> polyline;
         private Spanned instruction;
+        private String maneuver;
 
-        public PolylineData(List<LatLng> polyline, Spanned instruction) {
+        public PolylineData(List<LatLng> polyline, Spanned instruction, String maneuver) {
             this.polyline = polyline;
             this.instruction = instruction;
+            this.maneuver = maneuver;
         }
 
         public List<LatLng> getPolyline() {
@@ -135,6 +139,10 @@ public class LocationUpdate {
 
         public Spanned getInstruction() {
             return instruction;
+        }
+
+        public String getManeuver() {
+            return maneuver;
         }
     }
 }
