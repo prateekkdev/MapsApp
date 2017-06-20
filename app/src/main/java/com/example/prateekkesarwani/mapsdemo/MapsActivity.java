@@ -36,8 +36,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView imgCurrent;
     private ImageView imgRoute;
 
-    // Location currentLocation;
-    LatLng dropLocation;
+    Location savedLocation;
+    Location currentLocation;
+    float currentBearing;
 
     TextToSpeech ttsEngine;
 
@@ -112,9 +113,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .doOnNext(location -> {
 
                                     currentLocation = location;
-                                    savedLocation = getPLocation();
-
-                                    updateCamera(savedLocation.location, savedLocation.bearing);
+                                    updateBearing();
+                                    updateCamera(currentLocation, currentBearing);
 
                             /*
                                     if (mCurrLocationMarker != null) {
@@ -150,44 +150,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    PLocation savedLocation;
-    Location currentLocation;
-
-    class PLocation {
-        float bearing;
-        Location location;
-    }
-
-    private PLocation getPLocation() {
-
-        if (savedLocation == null) {
-            savedLocation = new PLocation();
-            savedLocation.location = currentLocation;
-            savedLocation.bearing = currentLocation.getBearing();
-        }
+    private void updateBearing() {
 
         if (currentLocation != null) {
 
-            if (savedLocation.location == null || savedLocation.location.getAccuracy() > 20) {
-                savedLocation.location = currentLocation;
+            if (savedLocation == null || savedLocation.getAccuracy() > 20) {
+                savedLocation = currentLocation;
+                currentBearing = currentLocation.getBearing();
             }
 
             final float bearing = (float) BearingCalculation.finalBearing(
-                    savedLocation.location.getLatitude(),
-                    savedLocation.location.getLongitude(),
+                    savedLocation.getLatitude(),
+                    savedLocation.getLongitude(),
                     currentLocation.getLatitude(), currentLocation.getLongitude());
 
-            double bearing_change_distance = savedLocation.location
+            double bearing_change_distance = savedLocation
                     .distanceTo(currentLocation);
 
-            savedLocation.location = currentLocation;
+            savedLocation = currentLocation;
             if (bearing_change_distance >= 20
-                    && savedLocation.location.getAccuracy() < 20
+                    && savedLocation.getAccuracy() < 20
                     && currentLocation.getAccuracy() < 20) {
-                savedLocation.bearing = bearing;
+                currentBearing = bearing;
             }
+
         }
-        return savedLocation;
     }
 
     /**
