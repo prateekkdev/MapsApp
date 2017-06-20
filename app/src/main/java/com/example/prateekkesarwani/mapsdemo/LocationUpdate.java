@@ -2,6 +2,8 @@ package com.example.prateekkesarwani.mapsdemo;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 
 import com.akexorcist.googledirection.DirectionCallback;
@@ -86,7 +88,7 @@ public class LocationUpdate {
         });
     }
 
-    public Observable<List<LatLng>> getPolylineObservable(LatLng start, LatLng end, List<LatLng> waypointList) {
+    public Observable<PolylineData> getPolylineObservable(LatLng start, LatLng end, List<LatLng> waypointList) {
 
         return Observable.create(e ->
                 GoogleDirection.withServerKey(MapsDemoApplication.getAppContext().getResources().getString(R.string.google_maps_key))
@@ -102,9 +104,7 @@ public class LocationUpdate {
 
                                     List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
 
-                                    // txtNavigationNotification.setText(Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction()));
-
-                                    e.onNext(list);
+                                    e.onNext(new PolylineData(list, Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction())));
 
                                     Log.e("Prateek, direction", "OK" + rawBody);
                                 } else {
@@ -118,5 +118,23 @@ public class LocationUpdate {
                                 Log.e("Prateek, direction", "Failure: " + t.getMessage());
                             }
                         }));
+    }
+
+    class PolylineData {
+        private List<LatLng> polyline;
+        private Spanned instruction;
+
+        public PolylineData(List<LatLng> polyline, Spanned instruction) {
+            this.polyline = polyline;
+            this.instruction = instruction;
+        }
+
+        public List<LatLng> getPolyline() {
+            return polyline;
+        }
+
+        public Spanned getInstruction() {
+            return instruction;
+        }
     }
 }

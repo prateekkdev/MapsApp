@@ -98,6 +98,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateCurrentLocationData();
     }
 
+    private void initWithLastKnownLocation() {
+
+        mLocationUpdate.getLastKnownLocationObservable()
+                .subscribeOn(Schedulers.io())
+                .doOnNext(location -> {
+                    currentLocation = location;
+                    updatePolyline();
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(location -> {
+                    mCurrLocationMarker = mMap
+                            .addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                    .title("Marker in Current Location")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
+                    updateCamera(location, location.getBearing());
+                });
+    }
+
+    private void updatePolyline() {
+        mLocationUpdate
+                .getPolylineObservable(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), egl, null)
+                .subscribe(polylineData -> {
+                    txtNavigationNotification.setText(polylineData.getInstruction());
+                    drawPolyline(polylineData.getPolyline());
+                });
+    }
+
     private void drawPolyline(List<LatLng> latLngList) {
         if (polyline == null) {
 
@@ -109,26 +136,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             polyline.setPoints(latLngList);
         }
-    }
-
-
-    private void initWithLastKnownLocation() {
-
-        mLocationUpdate
-                .getPolylineObservable(smondo, egl, null)
-                .subscribe(list -> drawPolyline(list));
-
-        mLocationUpdate.getLastKnownLocationObservable()
-                .subscribeOn(Schedulers.io())
-                .doOnNext(location -> currentLocation = location)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(location -> {
-                    mCurrLocationMarker = mMap
-                            .addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()))
-                                    .title("Marker in Current Location")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
-                    updateCamera(location, location.getBearing());
-                });
     }
 
     private void updateCurrentLocationData() {
