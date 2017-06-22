@@ -106,7 +106,9 @@ public class LocationUpdate {
 
                                 if (direction.isOK()) {
 
-                                    List<LatLng> list = direction.getRouteList().get(0).getOverviewPolyline().getPointList();
+                                    // direction.getRouteList().get(0).getOverviewPolyline().getPointList();
+
+                                    List<LatLng> list = direction.getRouteList().get(0).getLegList().get(0).getDirectionPoint();
 
                                     e.onNext(new PolylineData(list,
                                             Html.fromHtml(direction.getRouteList().get(0).getLegList().get(0).getStepList().get(0).getHtmlInstruction()),

@@ -143,10 +143,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         waypointsList.add(smondoEglWP2);
 
         mLocationUpdate
-                .getPolylineObservable(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), egl, waypointsList)
+                .getPolylineObservable(smondo, egl, null)
                 .subscribe(polylineData -> {
                     txtNavigationNotification.setText(polylineData.getInstruction());
                     drawPolyline(polylineData.getPolyline());
+
+                    if (locationTracker == null) {
+                        locationTracker = new LocationTracker(polylineData.getPolyline());
+                    }
 
                     /**
                      * TODO This value should be non-null for indexes other than 0.
@@ -157,7 +161,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
     }
 
+    LocationTracker locationTracker;
+
     private void drawPolyline(List<LatLng> latLngList) {
+
         if (polyline == null) {
 
             PolylineOptions polylineOptions = new PolylineOptions();
@@ -192,6 +199,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(location -> {
                             currentLocation = location;
+
+                            // LocationTracker is getting created only when we receive the polyline items.
+                            if (locationTracker != null) {
+                                locationTracker.updateCurrentPointer(new LatLng(location.getLatitude(), location.getLongitude()));
+                            }
+
                             mCurrLocationMarker.setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             updateBearing();
                             updateCamera(currentLocation, currentBearing);
