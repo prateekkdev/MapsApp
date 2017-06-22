@@ -229,6 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void updateCamera(Location location, float bearing) {
         if (location != null) {
             CameraPosition currentPlace = new CameraPosition.Builder()
+                    .tilt(70)
                     .target(new LatLng(location.getLatitude(),
                             location.getLongitude())).bearing(bearing)
                     .zoom(ZOOM_LEVEL).build();
