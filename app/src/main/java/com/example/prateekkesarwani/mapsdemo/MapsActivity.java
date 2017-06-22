@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,8 +38,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker mCurrLocationMarker;
     private FusedLocationProviderClient mFusedLocationClient;
 
-    final LatLng egl = new LatLng(12.951292, 77.639570);
-    final LatLng smondo = new LatLng(12.821949, 77.657729);
+    public static final LatLng egl = new LatLng(12.951292, 77.639570);
+    public static final LatLng smondo = new LatLng(12.821949, 77.657729);
+
+    public static final LatLng smondoEglWP1 = new LatLng(12.924249, 77.652104);
+    public static final LatLng smondoEglWP2 = new LatLng(12.947900, 77.659490);
 
     private TextView txtNavigationNotification;
 
@@ -133,8 +137,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void updatePolyline() {
+
+        List<LatLng> waypointsList = new ArrayList<>();
+        waypointsList.add(smondoEglWP1);
+        waypointsList.add(smondoEglWP2);
+
         mLocationUpdate
-                .getPolylineObservable(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), egl, null)
+                .getPolylineObservable(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), egl, waypointsList)
                 .subscribe(polylineData -> {
                     txtNavigationNotification.setText(polylineData.getInstruction());
                     drawPolyline(polylineData.getPolyline());
@@ -187,7 +196,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             updateBearing();
                             updateCamera(currentLocation, currentBearing);
 
-                            updatePolyline();
+                            // updatePolyline();
                         }
                 )
                 .subscribe();
