@@ -34,6 +34,10 @@ import io.reactivex.schedulers.Schedulers;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final int ZOOM_LEVEL = 17;
+    private static final int TILT_LEVEL = 90;
+    private static final int ROUT_POLYLINE_WIDTH = 12;
+    private static final int DEVIATED_POLYLINE_WIDTH = 10;
+
 
     private GoogleMap mMap;
     private Marker mCurrLocationMarker;
@@ -167,7 +171,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             PolylineOptions polylineOptions = new PolylineOptions();
             polylineOptions.addAll(latLngList);
 
-            polyline = mMap.addPolyline(polylineOptions.width(9)
+            polyline = mMap.addPolyline(polylineOptions.width(ROUT_POLYLINE_WIDTH)
                     .color(Color.parseColor("#aa006aff")).geodesic(true));
         } else {
             polyline.setPoints(latLngList);
@@ -199,11 +203,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             // LocationTracker is getting created only when we receive the polyline item.
                             if (locationTracker != null) {
-                                locationTracker.updateCurrentPointer(new LatLng(location.getLatitude(), location.getLongitude()));
+                                if (locationTracker.isStepUpdate(new LatLng(location.getLatitude(), location.getLongitude()))) {
+                                    // TODO Only apply if step is changed.
+                                    txtNavigationNotification.setText(Html.fromHtml(locationTracker.getCurrentStep().getHtmlInstruction()));
 
-
-                                // TODO Only apply if step is changed.
-                                txtNavigationNotification.setText(Html.fromHtml(locationTracker.getCurrentStep().getHtmlInstruction()));
+                                    // This is done to get text in string format(step's format is html)
+                                    String text = txtNavigationNotification.getText() + "";
+                                    ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                                }
                             }
 
                             mCurrLocationMarker.setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
@@ -249,10 +256,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      *
      * @param bearing
      */
+
+    // TODO Again and again new LatLng getting created, resolve this.
     public void updateCamera(Location location, float bearing) {
         if (location != null) {
             CameraPosition currentPlace = new CameraPosition.Builder()
-                    .tilt(70)
+                    .tilt(TILT_LEVEL)
                     .target(new LatLng(location.getLatitude(),
                             location.getLongitude())).bearing(bearing)
                     .zoom(ZOOM_LEVEL).build();

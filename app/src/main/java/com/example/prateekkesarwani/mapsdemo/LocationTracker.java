@@ -27,6 +27,7 @@ public class LocationTracker {
     int currentStepIndex;
     LatLng currentStepLocation;
 
+    int previousStepIndex;
 
     public Step getCurrentStep() {
         return currentStep;
@@ -47,7 +48,7 @@ public class LocationTracker {
     }
 
     // First start with brute force, then we will optimize
-    public void updateCurrentPointer(LatLng currentLocation) {
+    public boolean isStepUpdate(LatLng currentLocation) {
 
         float currentPointerDistance = distanceFind(currentLocation, currentStepLocation);
 
@@ -70,6 +71,13 @@ public class LocationTracker {
 
         float distance = distanceFind(currentLocation, currentStepLocation);
         Log.e("Prateek, ", "currentStepIndex: " + currentStepIndex + ", currentLocationAndPointerDiff: " + distance);
+
+        if (previousStepIndex != currentStepIndex) {
+            previousStepIndex = currentStepIndex;
+            return true;
+        }
+
+        return false;
     }
 
     public float distanceFind(LatLng location1, LatLng location2) {
