@@ -60,6 +60,7 @@ public class LocationTracker {
                 float indexDistance = distanceFind(currentLocation, location);
 
                 if (indexDistance <= currentPointerDistance) {
+                    currentPointerDistance = indexDistance;
                     currentStepLocation = location;
                     currentStep = step;
                     currentStepIndex = index;
