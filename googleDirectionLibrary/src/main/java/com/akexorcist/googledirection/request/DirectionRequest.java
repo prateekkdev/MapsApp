@@ -94,6 +94,11 @@ public class DirectionRequest {
         return this;
     }
 
+    public DirectionRequest viaPoints(boolean isViapoints) {
+        param.setViaPoints(isViapoints);
+        return this;
+    }
+
     public DirectionRequest optimizeWaypoints(boolean optimize) {
         param.setOptimizeWaypoints(optimize);
         return this;
@@ -132,9 +137,9 @@ public class DirectionRequest {
     private String waypointsToString(List<LatLng> waypoints) {
         if (waypoints != null && !waypoints.isEmpty()) {
             String string = param.isOptimizeWaypoints() ? "optimize:true|" : "";
-            string += waypoints.get(0).latitude + "," + waypoints.get(0).longitude;
+            string += (param.isViaPoints() ? "via:" : "") + waypoints.get(0).latitude + "," + waypoints.get(0).longitude;
             for (int i = 1; i < waypoints.size(); i++) {
-                string += "|" + waypoints.get(i).latitude + "," + waypoints.get(i).longitude;
+                string += "|" + (param.isViaPoints() ? "via:" : "") + waypoints.get(i).latitude + "," + waypoints.get(i).longitude;
             }
             return string;
         }

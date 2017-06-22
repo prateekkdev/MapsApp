@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.config.GoogleDirectionConfiguration;
 import com.akexorcist.googledirection.constant.AvoidType;
 import com.akexorcist.googledirection.model.Direction;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -90,12 +91,15 @@ public class LocationUpdate {
 
     public Observable<PolylineData> getPolylineObservable(LatLng start, LatLng end, List<LatLng> waypointList) {
 
+        GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
+
         return Observable.create(e ->
                 GoogleDirection.withServerKey(MapsDemoApplication.getAppContext().getResources().getString(R.string.google_maps_key))
                         .from(start)
                         .to(end)
                         .avoid(AvoidType.FERRIES)
                         .waypoints(waypointList)
+                        .viaPoints(false)
                         .execute(new DirectionCallback() {
                             @Override
                             public void onDirectionSuccess(Direction direction, String rawBody) {

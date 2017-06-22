@@ -42,6 +42,7 @@ public class DirectionRequestParam implements Parcelable {
     private String apiKey;
     private List<LatLng> waypoints;
     private boolean optimizeWaypoints;
+    private boolean viaPoints;
 
     public DirectionRequestParam() {
     }
@@ -150,6 +151,14 @@ public class DirectionRequestParam implements Parcelable {
 
     public void setWaypoints(List<LatLng> waypoints) {
         this.waypoints = waypoints;
+    }
+
+    public boolean isViaPoints() {
+        return this.viaPoints;
+    }
+
+    public void setViaPoints(boolean viaPoints) {
+        this.viaPoints = viaPoints;
     }
 
     public boolean isOptimizeWaypoints() {
