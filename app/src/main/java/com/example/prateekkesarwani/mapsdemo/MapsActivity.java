@@ -143,21 +143,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         waypointsList.add(smondoEglWP2);
 
         mLocationUpdate
-                .getPolylineObservable(smondo, egl, null)
-                .subscribe(polylineData -> {
-                    txtNavigationNotification.setText(polylineData.getInstruction());
-                    drawPolyline(polylineData.getPolyline());
+                .getPolylineObservableNew(smondo, egl, null)
+                .subscribe(leg -> {
+
+                    // Even this is an overkill, if we are already iterating later.
+                    drawPolyline(leg.getDirectionPoint());
 
                     if (locationTracker == null) {
-                        locationTracker = new LocationTracker(polylineData.getPolyline());
+                        locationTracker = new LocationTracker(leg);
                     }
 
-                    /**
-                     * TODO This value should be non-null for indexes other than 0.
-                     */
-                    if (!TextUtils.isEmpty(polylineData.getManeuver())) {
-                        ttsEngine.speak(polylineData.getManeuver(), TextToSpeech.QUEUE_FLUSH, null);
-                    }
+
                 });
     }
 
@@ -200,7 +196,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .doOnNext(location -> {
                             currentLocation = location;
 
-                            // LocationTracker is getting created only when we receive the polyline items.
+                            // LocationTracker is getting created only when we receive the polyline item.
                             if (locationTracker != null) {
                                 locationTracker.updateCurrentPointer(new LatLng(location.getLatitude(), location.getLongitude()));
                             }
@@ -281,5 +277,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(lam2 - lam1)
             ) * 180 / Math.PI;
         }
+    }
+
+    private void updatePolylineOlder() {
+
+        List<LatLng> waypointsList = new ArrayList<>();
+        waypointsList.add(smondoEglWP1);
+        waypointsList.add(smondoEglWP2);
+
+        mLocationUpdate
+                .getPolylineObservable(smondo, egl, null)
+                .subscribe(polylineData -> {
+                    txtNavigationNotification.setText(polylineData.getInstruction());
+                    drawPolyline(polylineData.getPolyline());
+
+                    if (locationTracker == null) {
+                        locationTracker = new LocationTracker(polylineData.getPolyline());
+                    }
+
+                    /**
+                     * TODO This value should be non-null for indexes other than 0.
+                     */
+                    if (!TextUtils.isEmpty(polylineData.getManeuver())) {
+                        ttsEngine.speak(polylineData.getManeuver(), TextToSpeech.QUEUE_FLUSH, null);
+                    }
+                });
     }
 }

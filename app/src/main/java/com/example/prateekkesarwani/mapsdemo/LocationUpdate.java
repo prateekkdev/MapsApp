@@ -11,6 +11,7 @@ import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.config.GoogleDirectionConfiguration;
 import com.akexorcist.googledirection.constant.AvoidType;
 import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Leg;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -87,6 +88,43 @@ public class LocationUpdate {
                     });
 
         });
+    }
+
+    public Observable<Leg> getPolylineObservableNew(LatLng start, LatLng end, List<LatLng> waypointList) {
+
+        GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
+
+        return Observable.create(e ->
+                GoogleDirection.withServerKey(MapsDemoApplication.getAppContext().getResources().getString(R.string.google_maps_key))
+                        .from(start)
+                        .to(end)
+                        .avoid(AvoidType.FERRIES)
+                        .waypoints(waypointList)
+                        .viaPoints(false)
+                        .execute(new DirectionCallback() {
+                            @Override
+                            public void onDirectionSuccess(Direction direction, String rawBody) {
+
+                                if (direction.isOK()) {
+
+                                    // direction.getRouteList().get(0).getOverviewPolyline().getPointList();
+
+                                    List<LatLng> list = direction.getRouteList().get(0).getLegList().get(0).getDirectionPoint();
+
+                                    e.onNext(direction.getRouteList().get(0).getLegList().get(0));
+
+                                    Log.e("Prateek, direction", "OK" + rawBody);
+                                } else {
+                                    Log.e("Prateek, direction", "NotOk:" + rawBody);
+                                }
+                            }
+
+                            @Override
+                            public void onDirectionFailure(Throwable t) {
+                                e.onError(new Throwable("Direction not ok"));
+                                Log.e("Prateek, direction", "Failure: " + t.getMessage());
+                            }
+                        }));
     }
 
     public Observable<PolylineData> getPolylineObservable(LatLng start, LatLng end, List<LatLng> waypointList) {

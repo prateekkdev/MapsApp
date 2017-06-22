@@ -3,6 +3,8 @@ package com.example.prateekkesarwani.mapsdemo;
 import android.location.Location;
 import android.util.Log;
 
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Step;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
@@ -15,20 +17,75 @@ public class LocationTracker {
 
     List<LatLng> locationList;
 
+    Leg legInfo;
+
     // TODO Use custom data
     int currentPointer = 0;
+
+    Step currentStep;
+    LatLng currentStepPointer;
 
     public LocationTracker(List<LatLng> locationList) {
         this.locationList = locationList;
     }
 
-    public void distanceFind(Location location) {
+    // TODO When changes are made, should we cache and stuff(Although caching is mosltly needed for images unlike backend which might need caching to avoid network calls.
+    public LocationTracker(Leg leg) {
 
-        // location.distanceTo()
+        // Need to figure out these.
 
+        this.legInfo = leg;
+        this.currentStep = leg.getStepList().get(0);
+        this.currentStepPointer = currentStep.getPolyline().getPointList().get(0);
     }
 
+    // First start with brute force, then we will optimize
     public void updateCurrentPointer(LatLng currentLocation) {
+
+        float currentPointerDistance = distanceFind(currentLocation, currentStepPointer);
+
+        for (Step step : legInfo.getStepList()) {
+
+            for (LatLng location : step.getPolyline().getPointList()) {
+
+                float indexDistance = distanceFind(currentLocation, location);
+
+                if (indexDistance <= currentPointerDistance) {
+                    currentStepPointer = location;
+                    currentStep = step;
+                }
+            }
+        }
+
+        float distance = distanceFind(currentLocation, currentStepPointer);
+        Log.e("Prateek, ", "currentStep: " + currentStep.getStartLocation().toString() + ", currentLocationAndPointerDiff: " + distance);
+    }
+
+    public float distanceFind(LatLng location1, LatLng location2) {
+
+        // function also returns bearings
+        float[] result = new float[3];
+        Location.distanceBetween(location1.latitude, location1.longitude, location2.latitude, location2.longitude, result);
+
+        return result[0];
+    }
+
+    public void printDistancesBetweenPoints() {
+
+        float totalDistance = 0.0f;
+        for (int index = 1; index < locationList.size(); index++) {
+            float distance = distanceFind(locationList.get(index - 1), locationList.get(index));
+            totalDistance += distance;
+            Log.e("Prateek, distance", "" + distance);
+        }
+
+        Log.e("Prateek, totalDistance", "" + totalDistance);
+    }
+
+    // Should we find closest point, and then iterate the stuff out.
+    // Actually below code is doing the same. Maybe we are iterating all currently, moving forward, might use binary search based thing, as points are in order of distance.
+    // So, O(n) would reduce to O(logn)
+    public void updateCurrentPointerOlder(LatLng currentLocation) {
 
         float currentPointerDistance = distanceFind(currentLocation, locationList.get(currentPointer));
         for (int index = currentPointer + 1; index < locationList.size(); index++) {
@@ -48,32 +105,5 @@ public class LocationTracker {
 
         float distance = distanceFind(currentLocation, locationList.get(currentPointer));
         Log.e("Prateek, ", "currentPointer: " + currentPointer + ", currentLocationAndPointerDiff: " + distance);
-    }
-
-    public void distanceFind(LatLng location) {
-
-        // function also returns bearings
-        float[] result = new float[3];
-        Location.distanceBetween(location.latitude, location.longitude, locationList.get(0).latitude, locationList.get(0).longitude, result);
-
-    }
-
-    public float distanceFind(LatLng location1, LatLng location2) {
-        float[] result = new float[3];
-        Location.distanceBetween(location1.latitude, location1.longitude, location2.latitude, location2.longitude, result);
-
-        return result[0];
-    }
-
-    public void printDistancesBetweenPoints() {
-
-        float totalDistance = 0.0f;
-        for (int index = 1; index < locationList.size(); index++) {
-            float distance = distanceFind(locationList.get(index - 1), locationList.get(index));
-            totalDistance += distance;
-            Log.e("Prateek, distance", "" + distance);
-        }
-
-        Log.e("Prateek, totalDistance", "" + totalDistance);
     }
 }
