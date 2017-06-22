@@ -22,8 +22,15 @@ public class LocationTracker {
     // TODO Use custom data
     int currentPointer = 0;
 
+    // TODO These should be a single structure.
     Step currentStep;
-    LatLng currentStepPointer;
+    int currentStepIndex;
+    LatLng currentStepLocation;
+
+
+    public Step getCurrentStep() {
+        return currentStep;
+    }
 
     public LocationTracker(List<LatLng> locationList) {
         this.locationList = locationList;
@@ -36,29 +43,32 @@ public class LocationTracker {
 
         this.legInfo = leg;
         this.currentStep = leg.getStepList().get(0);
-        this.currentStepPointer = currentStep.getPolyline().getPointList().get(0);
+        this.currentStepLocation = currentStep.getPolyline().getPointList().get(0);
     }
 
     // First start with brute force, then we will optimize
     public void updateCurrentPointer(LatLng currentLocation) {
 
-        float currentPointerDistance = distanceFind(currentLocation, currentStepPointer);
+        float currentPointerDistance = distanceFind(currentLocation, currentStepLocation);
 
-        for (Step step : legInfo.getStepList()) {
+        for (int index = currentStepIndex; index < legInfo.getStepList().size(); index++) {
+
+            Step step = legInfo.getStepList().get(index);
 
             for (LatLng location : step.getPolyline().getPointList()) {
 
                 float indexDistance = distanceFind(currentLocation, location);
 
                 if (indexDistance <= currentPointerDistance) {
-                    currentStepPointer = location;
+                    currentStepLocation = location;
                     currentStep = step;
+                    currentStepIndex = index;
                 }
             }
         }
 
-        float distance = distanceFind(currentLocation, currentStepPointer);
-        Log.e("Prateek, ", "currentStep: " + currentStep.getStartLocation().toString() + ", currentLocationAndPointerDiff: " + distance);
+        float distance = distanceFind(currentLocation, currentStepLocation);
+        Log.e("Prateek, ", "currentStepIndex: " + currentStepIndex + ", currentLocationAndPointerDiff: " + distance);
     }
 
     public float distanceFind(LatLng location1, LatLng location2) {

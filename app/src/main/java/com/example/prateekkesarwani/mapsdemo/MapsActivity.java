@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -199,6 +200,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             // LocationTracker is getting created only when we receive the polyline item.
                             if (locationTracker != null) {
                                 locationTracker.updateCurrentPointer(new LatLng(location.getLatitude(), location.getLongitude()));
+
+
+                                // TODO Only apply if step is changed.
+                                txtNavigationNotification.setText(Html.fromHtml(locationTracker.getCurrentStep().getHtmlInstruction()));
                             }
 
                             mCurrLocationMarker.setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
