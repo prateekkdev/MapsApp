@@ -20,6 +20,10 @@ public class LocationTracker {
 
     Leg legInfo;
 
+    public Leg getLegInfo() {
+        return legInfo;
+    }
+
     // TODO Use custom data
     int currentPointer = 0;
 
@@ -30,7 +34,7 @@ public class LocationTracker {
     float remainingStepDistance;
     float currentStepDistanceCovered;
 
-    int previousStepIndex;
+    int previousStepIndex = -1;
 
     public float getRemainingStepDistance() {
         return remainingStepDistance;

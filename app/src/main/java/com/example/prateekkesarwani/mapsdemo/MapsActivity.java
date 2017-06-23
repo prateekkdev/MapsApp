@@ -8,6 +8,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 
+import com.akexorcist.googledirection.constant.Maneuver;
 import com.example.prateekkesarwani.mapsdemo.databinding.ActivityMapsBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -168,6 +169,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     if (locationTracker == null) {
                         locationTracker = new LocationTracker(leg);
+
+                        mapsBinding.footerDesc.setText(leg.getEndAddress());
                     }
                 });
     }
@@ -214,11 +217,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             // LocationTracker is getting created only when we receive the polyline item.
                             if (locationTracker != null) {
 
-                                mapsBinding.footerDesc.setText((int) locationTracker.getRemainingStepDistance() + " m");
+                                mapsBinding.mapsRemaining.setText((int) locationTracker.getRemainingStepDistance() + " m");
 
+                                // Only apply if step is changed.
                                 if (locationTracker.isStepUpdate(new LatLng(location.getLatitude(), location.getLongitude()))) {
-                                    // TODO Only apply if step is changed.
                                     mapsBinding.headerDesc.setText(Html.fromHtml(locationTracker.getCurrentStep().getHtmlInstruction()));
+
+                                    if (Maneuver.STRAIGHT.equalsIgnoreCase(locationTracker.getCurrentStep().getManeuver())) {
+                                        mapsBinding.mapsTurn.setBackground(getResources().getDrawable(R.drawable.turn_straight));
+                                    } else if (Maneuver.TURN_LEFT.equalsIgnoreCase(locationTracker.getCurrentStep().getManeuver())) {
+                                        mapsBinding.mapsTurn.setBackground(getResources().getDrawable(R.drawable.turn_left));
+                                    } else if (Maneuver.TURN_RIGHT.equalsIgnoreCase(locationTracker.getCurrentStep().getManeuver())) {
+                                        mapsBinding.mapsTurn.setBackground(getResources().getDrawable(R.drawable.turn_right));
+                                    }
 
                                     // This is done to get text in string format(step's format is html)
                                     String text = mapsBinding.headerDesc.getText() + "";
