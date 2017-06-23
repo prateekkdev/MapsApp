@@ -32,6 +32,10 @@ public class LocationTracker {
 
     int previousStepIndex;
 
+    public float getRemainingStepDistance() {
+        return remainingStepDistance;
+    }
+
     public Step getCurrentStep() {
         return currentStep;
     }

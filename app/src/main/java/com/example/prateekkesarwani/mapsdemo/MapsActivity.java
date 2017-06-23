@@ -1,15 +1,14 @@
 package com.example.prateekkesarwani.mapsdemo;
 
+import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
-import android.text.TextUtils;
-import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.example.prateekkesarwani.mapsdemo.databinding.ActivityMapsBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,10 +49,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final LatLng smondoEglWP1 = new LatLng(12.924249, 77.652104);
     public static final LatLng smondoEglWP2 = new LatLng(12.947900, 77.659490);
 
+    /*
     private TextView txtNavigationNotification;
 
     private ImageView imgCurrent;
     private ImageView imgRoute;
+    */
 
     Location savedLocation;
     Location currentLocation;
@@ -64,9 +65,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     LocationUpdate mLocationUpdate;
 
+    ActivityMapsBinding mapsBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mapsBinding = DataBindingUtil.setContentView(this, R.layout.activity_maps);
+
+        /*
         setContentView(R.layout.activity_maps);
 
         txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
@@ -74,6 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         imgCurrent = (ImageView) findViewById(R.id.img_current);
 
         imgRoute = (ImageView) findViewById(R.id.img_route);
+
+        */
 
         mLocationUpdate = new LocationUpdate();
 
@@ -204,12 +213,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             // LocationTracker is getting created only when we receive the polyline item.
                             if (locationTracker != null) {
+
+                                mapsBinding.footerDesc.setText((int) locationTracker.getRemainingStepDistance() + " m");
+
                                 if (locationTracker.isStepUpdate(new LatLng(location.getLatitude(), location.getLongitude()))) {
                                     // TODO Only apply if step is changed.
-                                    txtNavigationNotification.setText(Html.fromHtml(locationTracker.getCurrentStep().getHtmlInstruction()));
+                                    mapsBinding.headerDesc.setText(Html.fromHtml(locationTracker.getCurrentStep().getHtmlInstruction()));
 
                                     // This is done to get text in string format(step's format is html)
-                                    String text = txtNavigationNotification.getText() + "";
+                                    String text = mapsBinding.headerDesc.getText() + "";
                                     // ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null);
                                 }
                             }
@@ -315,30 +327,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
         }
         mMap.setMapStyle(style);
-    }
-
-    private void updatePolylineOlder() {
-
-        List<LatLng> waypointsList = new ArrayList<>();
-        waypointsList.add(smondoEglWP1);
-        waypointsList.add(smondoEglWP2);
-
-        mLocationUpdate
-                .getPolylineObservable(smondo, egl, null)
-                .subscribe(polylineData -> {
-                    txtNavigationNotification.setText(polylineData.getInstruction());
-                    drawPolyline(polylineData.getPolyline());
-
-                    if (locationTracker == null) {
-                        locationTracker = new LocationTracker(polylineData.getPolyline());
-                    }
-
-                    /**
-                     * TODO This value should be non-null for indexes other than 0.
-                     */
-                    if (!TextUtils.isEmpty(polylineData.getManeuver())) {
-                        ttsEngine.speak(polylineData.getManeuver(), TextToSpeech.QUEUE_FLUSH, null);
-                    }
-                });
     }
 }

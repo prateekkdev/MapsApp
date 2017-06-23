@@ -66,12 +66,12 @@ public class TempClass extends FragmentActivity implements OnMapReadyCallback {
 
         initTTS();
 
-        txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
+        // txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
 
-        imgCurrent = (ImageView) findViewById(R.id.img_current);
+        // imgCurrent = (ImageView) findViewById(R.id.img_current);
         imgCurrent.setOnClickListener(view -> showPosition(currentLocation, 0));
 
-        imgRoute = (ImageView) findViewById(R.id.img_route);
+        // imgRoute = (ImageView) findViewById(R.id.img_route);
         // imgRoute.setOnClickListener(view -> showRoute());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

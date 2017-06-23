@@ -1,84 +1,89 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-        android:id="@+id/maps_header"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@android:color/holo_green_dark"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/turn_straight" />
+        <LinearLayout
+            android:id="@+id/maps_header"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@android:color/holo_green_dark"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:text="Plese follow navigation"
-            android:textSize="18sp" />
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/turn_straight" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/header_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="Plese follow navigation"
+                android:textSize="18sp" />
 
-    <fragment xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/maps_header"
-        tools:context="com.example.prateekkesarwani.mapsdemo.MapsActivity" />
+        </LinearLayout>
 
-    <ImageView
-        android:id="@+id/img_current"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/maps_header"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/ic_my_location" />
-
-    <ImageView
-        android:id="@+id/img_route"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/img_current"
-        android:layout_marginRight="16dp"
-        android:background="@drawable/ic_snap_route" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/ic_close" />
-
-        <TextView
-            android:id="@+id/txt_navigation_notification"
+        <fragment xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:text="Here is the address"
-            android:textSize="16sp" />
+            android:layout_below="@id/maps_header"
+            tools:context="com.example.prateekkesarwani.mapsdemo.MapsActivity" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/img_current"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/maps_header"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/ic_my_location" />
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/img_route"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/img_current"
+            android:layout_marginRight="16dp"
+            android:background="@drawable/ic_snap_route" />
+
+        <LinearLayout
+            android:id="@+id/maps_footer"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/white"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/ic_close" />
+
+            <TextView
+                android:id="@+id/footer_desc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:text="Here is the address"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>
