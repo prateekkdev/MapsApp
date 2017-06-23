@@ -26,6 +26,8 @@ public class LocationTracker {
     Step currentStep;
     int currentStepIndex;
     LatLng currentStepLocation;
+    float remainingStepDistance;
+    float currentStepDistanceCovered;
 
     int previousStepIndex;
 
@@ -52,11 +54,23 @@ public class LocationTracker {
 
         float currentPointerDistance = distanceFind(currentLocation, currentStepLocation);
 
+        // This is done here, so haversine would give proper results incase of U turns, curves, as we have a lot of data points to add to(Rather than just start/end location)
+        int stepDistanceCovered;
+
         for (int index = currentStepIndex; index < legInfo.getStepList().size(); index++) {
 
             Step step = legInfo.getStepList().get(index);
+            stepDistanceCovered = 0;
 
-            for (LatLng location : step.getPolyline().getPointList()) {
+            List<LatLng> pointsList = step.getPolyline().getPointList();
+
+            // Checks here of indexOutofBounds
+            LatLng previousPoint = pointsList.get(0);
+
+            for (LatLng location : pointsList) {
+
+                stepDistanceCovered += distanceFind(previousPoint, location);
+                previousPoint = location;
 
                 float indexDistance = distanceFind(currentLocation, location);
 
@@ -65,12 +79,17 @@ public class LocationTracker {
                     currentStepLocation = location;
                     currentStep = step;
                     currentStepIndex = index;
+                    currentStepDistanceCovered = stepDistanceCovered;
                 }
             }
         }
 
         float distance = distanceFind(currentLocation, currentStepLocation);
-        Log.e("Prateek, ", "currentStepIndex: " + currentStepIndex + ", currentLocationAndPointerDiff: " + distance);
+
+        // TODO These are two separate things, one is haversine and other is google's. So better have haversine only. Do the calculations above.
+        remainingStepDistance = Integer.parseInt(currentStep.getDistance().getValue()) - currentStepDistanceCovered;
+
+        Log.e("Prateek, ", "currentStepIndex: " + currentStepIndex + ", currentLocationAndPointerDiff: " + distance + ", currentStepCovered: " + currentStepDistanceCovered + ", remainingStep: " + remainingStepDistance);
 
         if (previousStepIndex != currentStepIndex) {
             previousStepIndex = currentStepIndex;

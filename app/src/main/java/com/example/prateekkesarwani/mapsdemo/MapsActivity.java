@@ -212,7 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                     // This is done to get text in string format(step's format is html)
                                     String text = txtNavigationNotification.getText() + "";
-                                    ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                                    // ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null);
                                 }
                             }
 
