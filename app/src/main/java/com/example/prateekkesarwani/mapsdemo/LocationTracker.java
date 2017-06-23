@@ -1,6 +1,7 @@
 package com.example.prateekkesarwani.mapsdemo;
 
 import android.location.Location;
+import android.text.Html;
 import android.util.Log;
 
 import com.akexorcist.googledirection.model.Leg;
@@ -89,7 +90,10 @@ public class LocationTracker {
         // TODO These are two separate things, one is haversine and other is google's. So better have haversine only. Do the calculations above.
         remainingStepDistance = Integer.parseInt(currentStep.getDistance().getValue()) - currentStepDistanceCovered;
 
-        Log.e("Prateek, ", "currentStepIndex: " + currentStepIndex + ", currentLocationAndPointerDiff: " + distance + ", currentStepCovered: " + currentStepDistanceCovered + ", remainingStep: " + remainingStepDistance);
+        Log.e("Prateek, ", "currentStepIndex: " + currentStepIndex + ", currentLocationAndPointerDiff: " + distance);
+        Log.e("Prateek, ", "currentStepCovered: " + currentStepDistanceCovered + ", remainingStep: " + remainingStepDistance + ", maneuver: " + currentStep.getManeuver());
+        Log.e("Prateek, ", Html.fromHtml(currentStep.getHtmlInstruction()).toString());
+        Log.e("Prateek, ", "-----");
 
         if (previousStepIndex != currentStepIndex) {
             previousStepIndex = currentStepIndex;

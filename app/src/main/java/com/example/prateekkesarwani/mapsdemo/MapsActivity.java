@@ -109,7 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Set night style for now.
-        setSelectedStyle(R.string.style_label_night);
+        // setSelectedStyle(R.string.style_label_night);
 
         // Default mylocation along with direction is given by this.
         // mMap.setMyLocationEnabled(true);
@@ -151,7 +151,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         waypointsList.add(smondoEglWP2);
 
         mLocationUpdate
-                .getPolylineObservableNew(smondo, egl, null)
+                .getPolylineObservableNew(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), egl, null)
                 .subscribe(leg -> {
 
                     // Even this is an overkill, if we are already iterating later.
@@ -160,8 +160,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (locationTracker == null) {
                         locationTracker = new LocationTracker(leg);
                     }
-
-
                 });
     }
 
