@@ -50,13 +50,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final LatLng smondoEglWP1 = new LatLng(12.924249, 77.652104);
     public static final LatLng smondoEglWP2 = new LatLng(12.947900, 77.659490);
 
-    /*
-    private TextView txtNavigationNotification;
-
-    private ImageView imgCurrent;
-    private ImageView imgRoute;
-    */
-
     Location savedLocation;
     Location currentLocation;
     float currentBearing;
@@ -74,17 +67,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mapsBinding = DataBindingUtil.setContentView(this, R.layout.activity_maps);
 
-        /*
-        setContentView(R.layout.activity_maps);
-
-        txtNavigationNotification = (TextView) findViewById(R.id.txt_navigation_notification);
-
-        imgCurrent = (ImageView) findViewById(R.id.img_current);
-
-        imgRoute = (ImageView) findViewById(R.id.img_route);
-
-        */
-
         mLocationUpdate = new LocationUpdate();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -92,6 +74,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         initTTS();
+
+        mapsBinding.mapsClose.setOnClickListener(view -> finish());
     }
 
     void initTTS() {

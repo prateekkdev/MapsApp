@@ -80,10 +80,12 @@
             android:padding="8dp">
 
             <ImageView
+                android:id="@+id/maps_close"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/ic_close" />
+                android:background="@drawable/ic_close"
+                android:layout_margin="4dp" />
 
             <TextView
                 android:id="@+id/footer_desc"
