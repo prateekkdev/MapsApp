@@ -18,6 +18,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -33,7 +34,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final int ZOOM_LEVEL = 17;
+    private static final int ZOOM_LEVEL = 18;
     private static final int TILT_LEVEL = 90;
     private static final int ROUT_POLYLINE_WIDTH = 12;
     private static final int DEVIATED_POLYLINE_WIDTH = 10;
@@ -94,7 +95,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -107,6 +107,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        // Set night style for now.
+        setSelectedStyle(R.string.style_label_night);
 
         // Default mylocation along with direction is given by this.
         // mMap.setMyLocationEnabled(true);
@@ -291,6 +294,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(lam2 - lam1)
             ) * 180 / Math.PI;
         }
+    }
+
+    /**
+     * Creates a {@link MapStyleOptions} object via loadRawResourceStyle() (or via the
+     * constructor with a JSON String), then sets it on the {@link GoogleMap} instance,
+     * via the setMapStyle() method.
+     */
+    private void setSelectedStyle(int mSelectedStyleId) {
+        MapStyleOptions style;
+        switch (mSelectedStyleId) {
+            case R.string.style_label_night:
+                // Sets the night style via raw resource JSON.
+                style = MapStyleOptions.loadRawResourceStyle(this, R.raw.mapstyle_night);
+                break;
+
+            case R.string.style_label_default:
+                // Removes previously set style, by setting it to null.
+                style = null;
+                break;
+            default:
+                return;
+        }
+        mMap.setMapStyle(style);
     }
 
     private void updatePolylineOlder() {
