@@ -60,26 +60,48 @@ public class MapsFAB extends Service {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         initialX = params.x;
                         initialY = params.y;
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
-                        return true;
+                        return false;
                     case MotionEvent.ACTION_UP:
+
+                        // If movement is not made, we are leaving the event for onClicklistener.
+                        if (getChangedX(event) == initialX && getChangedY(event) == initialY) {
+                            return false;
+                        }
+
+                        // If movement is made, then we are consuming event.
                         return true;
+
                     case MotionEvent.ACTION_MOVE:
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+                        params.x = getChangedX(event);
+                        params.y = getChangedY(event);
                         windowManager.updateViewLayout(chatImage, params);
                         return true;
                 }
                 return false;
             }
+
+            int getChangedX(MotionEvent event) {
+                return initialX + (int) (event.getRawX() - initialTouchX);
+            }
+
+            int getChangedY(MotionEvent event) {
+                return initialY + (int) (event.getRawY() - initialTouchY);
+            }
         });
 
-        chatImage.setOnClickListener(view -> startActivity(new Intent(chatImage.getContext(), MapsActivity.class)));
+        chatImage.setOnClickListener(view -> {
+                    Intent intent = new Intent(chatImage.getContext(), MapsActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+        );
 
         windowManager.addView(chatImage, params);
     }
