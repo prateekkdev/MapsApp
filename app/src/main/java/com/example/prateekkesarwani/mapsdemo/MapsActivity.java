@@ -1,5 +1,6 @@
 package com.example.prateekkesarwani.mapsdemo;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.location.Location;
@@ -256,6 +257,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         }
+    }
+
+    /**
+     * Remove fab for maps app.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        stopService(new Intent(this, MapsFAB.class));
+    }
+
+    /**
+     * Add fab for maps app.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        startService(new Intent(this, MapsFAB.class));
     }
 
     /**
