@@ -77,6 +77,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         initTTS();
 
         mapsBinding.mapsClose.setOnClickListener(view -> finish());
+        Intent intent = new Intent(this, LocationService.class);
+        intent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        startService(intent);
     }
 
     void initTTS() {
