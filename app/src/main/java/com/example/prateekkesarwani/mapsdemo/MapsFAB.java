@@ -4,11 +4,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * Created by prateek.kesarwani on 25/06/17.
@@ -21,6 +25,12 @@ public class MapsFAB extends Service {
 
     private WindowManager windowManager;
     private ImageView chatImage;
+
+    private final PublishSubject<MotionEvent> mTouchSubject = PublishSubject.create();
+    private final Observable<MotionEvent> mTouches = mTouchSubject.hide();
+    private final Observable<MotionEvent> mDownObservable = mTouches.filter(ev -> ev.getActionMasked() == MotionEvent.ACTION_DOWN);
+    private final Observable<MotionEvent> mUpObservable = mTouches.filter(ev -> ev.getActionMasked() == MotionEvent.ACTION_UP);
+    private final Observable<MotionEvent> mMovesObservable = mTouches.filter(ev -> ev.getActionMasked() == MotionEvent.ACTION_MOVE);
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -52,6 +62,23 @@ public class MapsFAB extends Service {
         params.gravity = Gravity.TOP | Gravity.LEFT;
         params.x = 0;
         params.y = 100;
+
+        chatImage.setOnTouchListener((View v, MotionEvent event) -> {
+            mTouchSubject.onNext(event);
+            return true;
+        });
+
+        mDownObservable.subscribe(downEvent ->
+                mMovesObservable
+                        .takeUntil(mUpObservable
+                                .doOnNext(upEvent -> {
+                                    Log.i(upEvent.toString(), "Touch up");
+                                }))
+                        .subscribe(motionEvent -> {
+                            Log.i(motionEvent.toString(), "Touch move");
+                        })
+        );
+
         chatImage.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
             private int initialY;
