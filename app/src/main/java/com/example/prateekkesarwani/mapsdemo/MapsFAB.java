@@ -78,9 +78,16 @@ public class MapsFAB extends Service {
         Observable<MotionEvent> mUpObservable = mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_UP);
         Observable<MotionEvent> mMoveObservable = mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_MOVE);
 
-//        mDownObservable.subscribe(downEvent -> Log.e("prateek", "down event"));
-//        mMoveObservable.subscribe(downEvent -> Log.e("prateek", "move event"));
-//        mUpObservable.subscribe(downEvent -> Log.e("prateek", "up event"));
+        /**
+         * For each touch down event the new Observer for move events is created.
+         * Now we need to also create an Observer for touch up event.
+         * On touch up we'll unsubscribe from move events, and close the path.
+         * It's important to unsubscribe because otherwise for each next touch down we will be creating yet another moves Observer while leaving behind all the moves Observers created for previous touch downs.
+         * The unsubscription is achieved via takeUntil() operator.
+         * takeUntil: The RxJava wiki states that takeUntil() "emits the items from the source Observable until another Observable emits an item or issues a notification.
+         * This means that our Observer will be automatically unsubscribed from moves Observable when touch up Observable emits an item.
+         * Hence the moves Observable will become "cold" Observable, as it doesn't have Observers, and will stop emitting the items.
+         */
 
         mDownObservable
                 .subscribe(event ->
