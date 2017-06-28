@@ -82,12 +82,12 @@ public class MapsFAB extends Service {
 //        mMoveObservable.subscribe(downEvent -> Log.e("prateek", "move event"));
 //        mUpObservable.subscribe(downEvent -> Log.e("prateek", "up event"));
 
-        mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_DOWN)
-                .subscribe(downEvent ->
-                        mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_MOVE)
-                                .takeUntil(mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_UP))
+        mDownObservable
+                .subscribe(event ->
+                        mMoveObservable
+                                .takeUntil(mUpObservable)
+                                .doOnSubscribe(downEvent -> Log.e("prateek", "event down"))
                                 .doOnNext(moveEvent -> Log.e("prateek", "event move"))
-                                .doOnSubscribe(dEvent -> Log.e("prateek", "event down"))
                                 .doOnComplete(() -> Log.e("prateek", "event up"))
                                 .subscribe());
 
