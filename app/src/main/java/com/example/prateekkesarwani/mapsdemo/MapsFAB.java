@@ -27,10 +27,15 @@ public class MapsFAB extends Service {
     private ImageView chatImage;
 
     private final PublishSubject<MotionEvent> mTouchSubject = PublishSubject.create();
+    /*
     private final Observable<MotionEvent> mTouches = mTouchSubject.hide();
+
+
     private final Observable<MotionEvent> mDownObservable = mTouches.filter(ev -> ev.getActionMasked() == MotionEvent.ACTION_DOWN);
     private final Observable<MotionEvent> mUpObservable = mTouches.filter(ev -> ev.getActionMasked() == MotionEvent.ACTION_UP);
     private final Observable<MotionEvent> mMovesObservable = mTouches.filter(ev -> ev.getActionMasked() == MotionEvent.ACTION_MOVE);
+
+    */
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -68,16 +73,27 @@ public class MapsFAB extends Service {
             return true;
         });
 
-        mDownObservable.subscribe(downEvent ->
-                mMovesObservable
-                        .takeUntil(mUpObservable
-                                .doOnNext(upEvent -> {
-                                    Log.i(upEvent.toString(), "Touch up");
-                                }))
-                        .subscribe(motionEvent -> {
-                            Log.i(motionEvent.toString(), "Touch move");
-                        })
-        );
+
+        Observable<MotionEvent> mDownObservable = mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_DOWN);
+        Observable<MotionEvent> mUpObservable = mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_UP);
+        Observable<MotionEvent> mMoveObservable = mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_MOVE);
+
+//        mDownObservable.subscribe(downEvent -> Log.e("prateek", "down event"));
+//        mMoveObservable.subscribe(downEvent -> Log.e("prateek", "move event"));
+//        mUpObservable.subscribe(downEvent -> Log.e("prateek", "up event"));
+
+        mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_DOWN)
+                .subscribe(downEvent ->
+                        mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_MOVE)
+                                .takeUntil(mTouchSubject.filter(event -> event.getAction() == MotionEvent.ACTION_UP))
+                                .doOnNext(moveEvent -> Log.e("prateek", "event move"))
+                                .doOnSubscribe(dEvent -> Log.e("prateek", "event down"))
+                                .doOnComplete(() -> Log.e("prateek", "event up"))
+                                .subscribe());
+
+        windowManager.addView(chatImage, params);
+
+/*
 
         chatImage.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
@@ -123,14 +139,16 @@ public class MapsFAB extends Service {
             }
         });
 
+
         chatImage.setOnClickListener(view -> {
                     Intent intent = new Intent(chatImage.getContext(), MapsActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
         );
+*/
 
-        windowManager.addView(chatImage, params);
+
     }
 
     @Override
