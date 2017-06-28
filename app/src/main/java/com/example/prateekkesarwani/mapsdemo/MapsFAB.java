@@ -82,8 +82,10 @@ public class MapsFAB extends Service {
          * For each touch down event the new Observer for move events is created.
          * Now we need to also create an Observer for touch up event.
          * On touch up we'll unsubscribe from move events, and close the path.
+         *
          * It's important to unsubscribe because otherwise for each next touch down we will be creating yet another moves Observer while leaving behind all the moves Observers created for previous touch downs.
          * The unsubscription is achieved via takeUntil() operator.
+         *
          * takeUntil: The RxJava wiki states that takeUntil() "emits the items from the source Observable until another Observable emits an item or issues a notification.
          * This means that our Observer will be automatically unsubscribed from moves Observable when touch up Observable emits an item.
          * Hence the moves Observable will become "cold" Observable, as it doesn't have Observers, and will stop emitting the items.
