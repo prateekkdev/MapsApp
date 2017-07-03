@@ -31,7 +31,7 @@ public class ExampleUnitTest {
     public void performExponentialBackoff() throws Exception {
 
 
-        for (; value < 10; ) {
+        for (; value < 30; ) {
 
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
@@ -40,13 +40,15 @@ public class ExampleUnitTest {
                     value++;
 
                     final boolean result;
-                    if (value == 5 || value == 6 || value == 7) {
+                    if (value == 5 || value == 6 || value == 7 || value == 8 || value == 9 || value == 15 || value == 16 || value == 17 || value == 18) {
                         result = false;
                     } else {
                         result = true;
                     }
 
                     if (result) {
+                        // Rest retries
+                        currentRetrySec = 0;
                         e.onComplete();
                     } else {
                         e.onError(new Throwable());
