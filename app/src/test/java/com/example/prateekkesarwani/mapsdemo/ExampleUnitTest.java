@@ -23,6 +23,9 @@ public class ExampleUnitTest {
 
 
     int value = 0;
+    int currentRetrySec = 1;
+    int maxRetrySec = 10;
+    float expBackoff = 2.0f;
 
     @Test
     public void performExponentialBackoff() throws Exception {
@@ -50,7 +53,20 @@ public class ExampleUnitTest {
                     }
                 }
             })
-                    .doOnError(throwable -> Thread.sleep(1000))
+                    .doOnError(throwable -> {
+
+                        if (currentRetrySec == 0) {
+                            currentRetrySec = 1;
+                        } else {
+                            currentRetrySec = (int) expBackoff * currentRetrySec;
+                        }
+
+                        if (currentRetrySec >= maxRetrySec) {
+                            currentRetrySec = maxRetrySec;
+                        }
+
+                        Thread.sleep(1000 * currentRetrySec);
+                    })
                     .subscribe(new Observer<Boolean>() {
                         @Override
                         public void onSubscribe(Disposable d) {
