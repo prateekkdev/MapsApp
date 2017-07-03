@@ -49,27 +49,35 @@ public class ExampleUnitTest {
                         e.onError(new Throwable());
                     }
                 }
-            }).retry().subscribe(new Observer<Boolean>() {
-                @Override
-                public void onSubscribe(Disposable d) {
+            })
+                    .doOnError(throwable -> Thread.sleep(1000))
+                    .subscribe(new Observer<Boolean>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
 
-                }
+                        }
 
-                @Override
-                public void onNext(Boolean aBoolean) {
-                    System.out.println("Next for: " + value + "");
-                }
+                        @Override
+                        public void onNext(Boolean aBoolean) {
+                            tagTime("next", value);
+                        }
 
-                @Override
-                public void onError(Throwable e) {
-                    System.out.println("Error for: " + value + "");
-                }
+                        @Override
+                        public void onError(Throwable e) {
+                            tagTime("error", value);
+                        }
 
-                @Override
-                public void onComplete() {
-                    System.out.println("Complete for: " + value + "");
-                }
-            });
+                        @Override
+                        public void onComplete() {
+                            tagTime("next", value);
+                        }
+                    });
         }
+    }
+
+    long startTime = System.currentTimeMillis();
+
+    public void tagTime(String str, int value) {
+        System.out.println(str + " for: " + value + " at time " + (System.currentTimeMillis() - startTime) / 1000 + "s");
     }
 }
