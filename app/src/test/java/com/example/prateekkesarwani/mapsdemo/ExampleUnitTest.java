@@ -28,7 +28,7 @@ public class ExampleUnitTest {
     public void performExponentialBackoff() throws Exception {
 
 
-        for (; value <= 10; ) {
+        for (; value < 10; ) {
 
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
@@ -49,7 +49,7 @@ public class ExampleUnitTest {
                         e.onError(new Throwable());
                     }
                 }
-            }).subscribe(new Observer<Boolean>() {
+            }).retry().subscribe(new Observer<Boolean>() {
                 @Override
                 public void onSubscribe(Disposable d) {
 
