@@ -22,22 +22,27 @@ public class ExampleUnitTest {
     }
 
 
+    int value = 0;
+
     @Test
     public void performExponentialBackoff() throws Exception {
 
 
-        for (int input = 1; input <= 10; input++) {
-            final boolean result;
-            final int value = input;
-            if (input == 5 || input == 6 || input == 7) {
-                result = false;
-            } else {
-                result = true;
-            }
+        for (; value <= 10; ) {
 
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
                 public void subscribe(ObservableEmitter<Boolean> e) throws Exception {
+
+                    value++;
+
+                    final boolean result;
+                    if (value == 5 || value == 6 || value == 7) {
+                        result = false;
+                    } else {
+                        result = true;
+                    }
+
                     if (result) {
                         e.onComplete();
                     } else {
