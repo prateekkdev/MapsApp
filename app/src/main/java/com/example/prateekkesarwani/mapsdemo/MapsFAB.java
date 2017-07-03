@@ -92,11 +92,19 @@ public class MapsFAB extends Service {
          */
 
         mDownObservable
+                .doOnNext(downEvent -> Log.e("prateek", "event down1"))
                 .subscribe(event ->
                         mMoveObservable
                                 .takeUntil(mUpObservable)
-                                .doOnSubscribe(downEvent -> Log.e("prateek", "event down"))
-                                .doOnNext(moveEvent -> Log.e("prateek", "event move"))
+                                .doOnSubscribe(downEvent -> Log.e("prateek", "event down1"))
+                                .doOnNext(moveEvent -> {
+
+                                    Log.e("prateek", "event move");
+
+
+
+                                })
+
                                 .doOnComplete(() -> Log.e("prateek", "event up"))
                                 .subscribe());
 
