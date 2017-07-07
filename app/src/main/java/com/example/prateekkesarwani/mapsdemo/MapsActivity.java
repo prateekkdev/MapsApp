@@ -168,6 +168,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void drawPolyline(List<LatLng> latLngList) {
 
+        int listSize = latLngList.size();
+
+        Log.e("Prateek", "Size of List: " + listSize);
+
         if (polyline == null) {
 
             PolylineOptions polylineOptions = new PolylineOptions();
