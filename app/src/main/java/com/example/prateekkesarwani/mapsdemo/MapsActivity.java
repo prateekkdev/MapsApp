@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
+import android.util.Log;
 
 import com.akexorcist.googledirection.constant.Maneuver;
 import com.example.prateekkesarwani.mapsdemo.databinding.ActivityMapsBinding;
@@ -35,7 +36,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final int ZOOM_LEVEL = 18;
+    private static final int ZOOM_LEVEL = 20;
     private static final int TILT_LEVEL = 90;
     private static final int ROUT_POLYLINE_WIDTH = 12;
     private static final int DEVIATED_POLYLINE_WIDTH = 10;
@@ -137,7 +138,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mCurrLocationMarker = mMap
                             .addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()))
                                     .title("Marker in Current Location")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mini)));
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_direction1)));
                     updateCamera(location, location.getBearing());
                 });
     }
@@ -289,6 +290,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // TODO Again and again new LatLng getting created, resolve this.
     public void updateCamera(Location location, float bearing) {
+        Log.d("Prateek, ", "Bearing:" + bearing);
         if (location != null) {
             CameraPosition currentPlace = new CameraPosition.Builder()
                     .tilt(TILT_LEVEL)
@@ -298,6 +300,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(
                     CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                     null);
+
+            mCurrLocationMarker.setRotation(bearing);
         }
     }
 
