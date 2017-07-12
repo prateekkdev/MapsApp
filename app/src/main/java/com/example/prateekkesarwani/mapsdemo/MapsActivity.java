@@ -297,7 +297,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("Prateek, ", "Bearing:" + bearing);
         if (location != null) {
             CameraPosition currentPlace = new CameraPosition.Builder()
-                    .tilt(TILT_LEVEL)
+                    // .tilt(TILT_LEVEL)
                     .target(new LatLng(location.getLatitude(),
                             location.getLongitude())).bearing(bearing)
                     .zoom(ZOOM_LEVEL).build();
@@ -305,6 +305,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     CameraUpdateFactory.newCameraPosition(currentPlace), 1000,
                     null);
 
+            // If we set tilt in above code, then would have to set consider the degrees in currentlocation marker rotation for this thing.
+            Log.e("Prateek", "Bearing: " + bearing);
             mCurrLocationMarker.setRotation(bearing);
         }
     }
