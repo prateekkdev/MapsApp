@@ -10,6 +10,8 @@ import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.config.GoogleDirectionConfiguration;
 import com.akexorcist.googledirection.constant.AvoidType;
+import com.akexorcist.googledirection.constant.TransitMode;
+import com.akexorcist.googledirection.constant.TransportMode;
 import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -101,6 +103,7 @@ public class LocationUpdate {
                         .avoid(AvoidType.FERRIES)
                         .waypoints(waypointList)
                         .viaPoints(false)
+                        .transportMode(TransportMode.DRIVING)
                         .execute(new DirectionCallback() {
                             @Override
                             public void onDirectionSuccess(Direction direction, String rawBody) {
